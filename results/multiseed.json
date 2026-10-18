@@ -1,0 +1,124 @@
+{
+  "base": {
+    "n_markets": 100,
+    "rule_mean": 14.039323696301793,
+    "rule_survival": 0.99,
+    "runs": [
+      {
+        "run": "ppo-20261018-113906",
+        "agent_mean": 16.962040834425114,
+        "diff": 2.9227171381233203,
+        "ci95": 1.6780987849308306,
+        "significant": true,
+        "survival": 0.9733333333333334
+      },
+      {
+        "run": "ppo-seed1-20261019-003738",
+        "agent_mean": 16.745019403253615,
+        "diff": 2.7056957069518237,
+        "ci95": 1.7945862938759511,
+        "significant": true,
+        "survival": 0.9733333333333332
+      },
+      {
+        "run": "ppo-seed2-20261019-004038",
+        "agent_mean": 13.955816085968602,
+        "diff": -0.08350761033319049,
+        "ci95": 1.618860057869016,
+        "significant": false,
+        "survival": 0.9733333333333333
+      },
+      {
+        "run": "ppo-seed3-20261019-004609",
+        "agent_mean": 13.994841464408848,
+        "diff": -0.04448223189294422,
+        "ci95": 1.5518051282529313,
+        "significant": false,
+        "survival": 0.9833333333333333
+      },
+      {
+        "run": "ppo-seed4-20261019-005329",
+        "agent_mean": 16.022873354526933,
+        "diff": 1.983549658225138,
+        "ci95": 1.6331006215425403,
+        "significant": true,
+        "survival": 0.9733333333333334
+      }
+    ],
+    "n_runs": 5,
+    "diff_mean_across_runs": 1.4967945322148295,
+    "diff_sd_across_runs": 1.4666728338606272,
+    "diff_min": -0.08350761033319049,
+    "diff_max": 2.9227171381233203,
+    "agent_mean_across_runs": 15.536118228516623,
+    "agent_sd_across_runs": 1.4666728338606272,
+    "runs_significantly_better": 3,
+    "sampling_sd_within_market": 6.63788804044015,
+    "sample_seeds": [
+      12345,
+      1,
+      2
+    ]
+  },
+  "compute_crunch": {
+    "n_markets": 100,
+    "rule_mean": 6.2164745226099685,
+    "rule_survival": 0.79,
+    "runs": [
+      {
+        "run": "ppo-20261018-113906",
+        "agent_mean": 5.795763083554417,
+        "diff": -0.4207114390555505,
+        "ci95": 1.4867241472299755,
+        "significant": false,
+        "survival": 0.62
+      },
+      {
+        "run": "ppo-seed1-20261019-003738",
+        "agent_mean": 4.666990921748239,
+        "diff": -1.5494836008617292,
+        "ci95": 1.3772847852420251,
+        "significant": false,
+        "survival": 0.54
+      },
+      {
+        "run": "ppo-seed2-20261019-004038",
+        "agent_mean": 3.2129302496975822,
+        "diff": -3.0035442729123853,
+        "ci95": 1.2376861165623827,
+        "significant": false,
+        "survival": 0.5266666666666666
+      },
+      {
+        "run": "ppo-seed3-20261019-004609",
+        "agent_mean": 3.960310739981745,
+        "diff": -2.2561637826282226,
+        "ci95": 1.2235801106159538,
+        "significant": false,
+        "survival": 0.5966666666666667
+      },
+      {
+        "run": "ppo-seed4-20261019-005329",
+        "agent_mean": 4.088900698278363,
+        "diff": -2.1275738243316047,
+        "ci95": 1.4816156632763116,
+        "significant": false,
+        "survival": 0.4966666666666667
+      }
+    ],
+    "n_runs": 5,
+    "diff_mean_across_runs": -1.8714953839578983,
+    "diff_sd_across_runs": 0.9622299978152447,
+    "diff_min": -3.0035442729123853,
+    "diff_max": -0.4207114390555505,
+    "agent_mean_across_runs": 4.34497913865207,
+    "agent_sd_across_runs": 0.9622299978152445,
+    "runs_significantly_better": 0,
+    "sampling_sd_within_market": 4.333272299159478,
+    "sample_seeds": [
+      12345,
+      1,
+      2
+    ]
+  }
+}

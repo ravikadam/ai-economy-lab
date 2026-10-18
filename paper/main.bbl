@@ -1,0 +1,190 @@
+\begin{thebibliography}{27}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Agarwal et~al.(2021)Agarwal, Schwarzer, Castro, Courville, and
+  Bellemare]{agarwal2021precipice}
+Rishabh Agarwal, Max Schwarzer, Pablo~Samuel Castro, Aaron Courville, and
+  Marc~G. Bellemare.
+\newblock Deep reinforcement learning at the edge of the statistical precipice.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, volume~34, 2021.
+
+\bibitem[Bass(1969)]{bass1969diffusion}
+Frank~M. Bass.
+\newblock A new product growth for model consumer durables.
+\newblock \emph{Management Science}, 15\penalty0 (5):\penalty0 215--227, 1969.
+
+\bibitem[Calvano et~al.(2020)Calvano, Calzolari, Denicol{\`o}, and
+  Pastorello]{calvano2020collusion}
+Emilio Calvano, Giacomo Calzolari, Vincenzo Denicol{\`o}, and Sergio
+  Pastorello.
+\newblock Artificial intelligence, algorithmic pricing, and collusion.
+\newblock \emph{American Economic Review}, 110\penalty0 (10):\penalty0
+  3267--3297, 2020.
+
+\bibitem[Cobbe et~al.(2019)Cobbe, Klimov, Hesse, Kim, and
+  Schulman]{cobbe2019generalization}
+Karl Cobbe, Oleg Klimov, Chris Hesse, Taehoon Kim, and John Schulman.
+\newblock Quantifying generalization in reinforcement learning.
+\newblock In \emph{Proceedings of the International Conference on Machine
+  Learning (ICML)}, 2019.
+
+\bibitem[Faria et~al.(2009)Faria, Hutchinson, Wellington, and
+  Gold]{faria2009gaming}
+A.~J. Faria, David Hutchinson, William~J. Wellington, and Steven Gold.
+\newblock Developments in business gaming: A review of the past 40 years.
+\newblock \emph{Simulation \& Gaming}, 40\penalty0 (4):\penalty0 464--487,
+  2009.
+
+\bibitem[Farmer and Foley(2009)]{farmer2009economy}
+J.~Doyne Farmer and Duncan Foley.
+\newblock The economy needs agent-based modelling.
+\newblock \emph{Nature}, 460:\penalty0 685--686, 2009.
+
+\bibitem[Henderson et~al.(2018)Henderson, Islam, Bachman, Pineau, Precup, and
+  Meger]{henderson2018matters}
+Peter Henderson, Riashat Islam, Philip Bachman, Joelle Pineau, Doina Precup,
+  and David Meger.
+\newblock Deep reinforcement learning that matters.
+\newblock In \emph{Proceedings of the AAAI Conference on Artificial
+  Intelligence}, 2018.
+
+\bibitem[Huang and Onta{\~n}{\'o}n(2022)]{huang2022masking}
+Shengyi Huang and Santiago Onta{\~n}{\'o}n.
+\newblock A closer look at invalid action masking in policy gradient
+  algorithms.
+\newblock In \emph{Proceedings of the International FLAIRS Conference},
+  volume~35, 2022.
+
+\bibitem[Lee et~al.(1997)Lee, Padmanabhan, and Whang]{lee1997bullwhip}
+Hau~L. Lee, V.~Padmanabhan, and Seungjin Whang.
+\newblock Information distortion in a supply chain: The bullwhip effect.
+\newblock \emph{Management Science}, 43\penalty0 (4):\penalty0 546--558, 1997.
+
+\bibitem[Lieberman and Montgomery(1988)]{lieberman1988firstmover}
+Marvin~B. Lieberman and David~B. Montgomery.
+\newblock First-mover advantages.
+\newblock \emph{Strategic Management Journal}, 9\penalty0 (S1):\penalty0
+  41--58, 1988.
+
+\bibitem[Ng et~al.(1999)Ng, Harada, and Russell]{ng1999shaping}
+Andrew~Y. Ng, Daishi Harada, and Stuart Russell.
+\newblock Policy invariance under reward transformations: Theory and
+  application to reward shaping.
+\newblock In \emph{Proceedings of the International Conference on Machine
+  Learning (ICML)}, 1999.
+
+\bibitem[Paszke et~al.(2019)Paszke, Gross, Massa, et~al.]{paszke2019pytorch}
+Adam Paszke, Sam Gross, Francisco Massa, et~al.
+\newblock {PyTorch}: An imperative style, high-performance deep learning
+  library.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, volume~32, 2019.
+
+\bibitem[Pomerleau(1991)]{pomerleau1991alvinn}
+Dean~A. Pomerleau.
+\newblock Efficient training of artificial neural networks for autonomous
+  navigation.
+\newblock \emph{Neural Computation}, 3\penalty0 (1):\penalty0 88--97, 1991.
+
+\bibitem[Rogers(2003)]{rogers2003diffusion}
+Everett~M. Rogers.
+\newblock \emph{Diffusion of Innovations}.
+\newblock Free Press, 5th edition, 2003.
+
+\bibitem[Ross et~al.(2011)Ross, Gordon, and Bagnell]{ross2011dagger}
+St{\'e}phane Ross, Geoffrey~J. Gordon, and J.~Andrew Bagnell.
+\newblock A reduction of imitation learning and structured prediction to
+  no-regret online learning.
+\newblock In \emph{Proceedings of the International Conference on Artificial
+  Intelligence and Statistics (AISTATS)}, 2011.
+
+\bibitem[Schulman et~al.(2016)Schulman, Moritz, Levine, Jordan, and
+  Abbeel]{schulman2016gae}
+John Schulman, Philipp Moritz, Sergey Levine, Michael Jordan, and Pieter
+  Abbeel.
+\newblock High-dimensional continuous control using generalized advantage
+  estimation.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2016.
+
+\bibitem[Schulman et~al.(2017)Schulman, Wolski, Dhariwal, Radford, and
+  Klimov]{schulman2017ppo}
+John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov.
+\newblock Proximal policy optimization algorithms.
+\newblock \emph{arXiv preprint arXiv:1707.06347}, 2017.
+
+\bibitem[Silver et~al.(2016)Silver, Huang, Maddison, et~al.]{silver2016alphago}
+David Silver, Aja Huang, Chris~J. Maddison, et~al.
+\newblock Mastering the game of {Go} with deep neural networks and tree search.
+\newblock \emph{Nature}, 529:\penalty0 484--489, 2016.
+
+\bibitem[Sterman(1989)]{sterman1989misperceptions}
+John~D. Sterman.
+\newblock Modeling managerial behavior: Misperceptions of feedback in a dynamic
+  decision making experiment.
+\newblock \emph{Management Science}, 35\penalty0 (3):\penalty0 321--339, 1989.
+
+\bibitem[Sutton and Barto(2018)]{sutton2018rl}
+Richard~S. Sutton and Andrew~G. Barto.
+\newblock \emph{Reinforcement Learning: An Introduction}.
+\newblock MIT Press, 2nd edition, 2018.
+
+\bibitem[Terry et~al.(2021)Terry, Black, Grammel, et~al.]{terry2021pettingzoo}
+J.~K. Terry, Benjamin Black, Nathaniel Grammel, et~al.
+\newblock {PettingZoo}: Gym for multi-agent reinforcement learning.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, volume~34, 2021.
+
+\bibitem[Tesfatsion(2006)]{tesfatsion2006ace}
+Leigh Tesfatsion.
+\newblock Agent-based computational economics: A constructive approach to
+  economic theory.
+\newblock In Leigh Tesfatsion and Kenneth~L. Judd, editors, \emph{Handbook of
+  Computational Economics}, volume~2, pages 831--880. Elsevier, 2006.
+
+\bibitem[Tobin et~al.(2017)Tobin, Fong, Ray, Schneider, Zaremba, and
+  Abbeel]{tobin2017domain}
+Josh Tobin, Rachel Fong, Alex Ray, Jonas Schneider, Wojciech Zaremba, and
+  Pieter Abbeel.
+\newblock Domain randomization for transferring deep neural networks from
+  simulation to the real world.
+\newblock In \emph{IEEE/RSJ International Conference on Intelligent Robots and
+  Systems (IROS)}, 2017.
+
+\bibitem[Towers et~al.(2024)Towers, Kwiatkowski, Terry,
+  et~al.]{towers2024gymnasium}
+Mark Towers, Ariel Kwiatkowski, Jordan Terry, et~al.
+\newblock Gymnasium: A standard interface for reinforcement learning
+  environments.
+\newblock \emph{arXiv preprint arXiv:2407.17032}, 2024.
+
+\bibitem[Vinyals et~al.(2019)Vinyals, Babuschkin, Czarnecki,
+  et~al.]{vinyals2019alphastar}
+Oriol Vinyals, Igor Babuschkin, Wojciech~M. Czarnecki, et~al.
+\newblock Grandmaster level in {StarCraft II} using multi-agent reinforcement
+  learning.
+\newblock \emph{Nature}, 575:\penalty0 350--354, 2019.
+
+\bibitem[Yu et~al.(2022)Yu, Velu, Vinitsky, Gao, Wang, Bayen, and
+  Wu]{yu2022mappo}
+Chao Yu, Akash Velu, Eugene Vinitsky, Jiaxuan Gao, Yu~Wang, Alexandre Bayen,
+  and Yi~Wu.
+\newblock The surprising effectiveness of {PPO} in cooperative multi-agent
+  games.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS),
+  Datasets and Benchmarks Track}, volume~35, 2022.
+
+\bibitem[Zheng et~al.(2022)Zheng, Trott, Srinivasa, Parkes, and
+  Socher]{zheng2022aieconomist}
+Stephan Zheng, Alexander Trott, Sunil Srinivasa, David~C. Parkes, and Richard
+  Socher.
+\newblock The {AI} economist: Taxation policy design via two-level deep
+  multiagent reinforcement learning.
+\newblock \emph{Science Advances}, 8\penalty0 (18):\penalty0 eabk2607, 2022.
+
+\end{thebibliography}

@@ -57,9 +57,10 @@ def collect_dataset(cfg, teacher: str, episodes: int, workers: int, seed_base: i
 
 
 def behaviour_clone(net, cfg, device: str, teacher: str = "best_npv", episodes: int = 64, workers: int = 8,
+                    seed_base: int = 3_000_000,
                     epochs: int = 6, batch: int = 4096, lr: float = 1e-3, log=print) -> dict:
     t0 = time.time()
-    (obs, vm, cm, sm, tm, act), skipped = collect_dataset(cfg, teacher, episodes, workers)
+    (obs, vm, cm, sm, tm, act), skipped = collect_dataset(cfg, teacher, episodes, workers, seed_base)
     log(f"[bc] collected {len(obs)} teacher decisions ({skipped} skipped: START target outside candidate set) "
         f"in {time.time() - t0:.0f}s")
     T = [torch.as_tensor(x, device=device) for x in (obs, vm, cm, sm, tm, act)]

@@ -1,0 +1,414 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+
+\setlist{itemsep=2pt,topsep=4pt}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+\title{How an AI Economy Behaves: A Multi-Agent Simulation in Which AI Companies Learn to Compete by Reinforcement Learning}
+\author{Ravi Kadam\\Independent Researcher\\\texttt{ravindrakad@gmail.com}}
+\date{October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We present an open, reproducible simulation of a stylised AI industry over ten years and let AI product companies learn to compete in it with reinforcement learning (RL). The simulated economy links a chip fabricator, chip designers, data centres, frontier and open-weight model providers, 5--12 competing AI product companies and 300 enterprise customers in three sectors. Companies decide which use cases to pursue, which model to build on, how much to spend, and when to pilot, launch, scale or quit, facing uncertain technology, hidden customer value, compute shortages and rivals. Learning from scratch failed: the agent stopped exploring and lost most of its capital. Imitating a competent rule and then improving with Proximal Policy Optimisation succeeded in under eight minutes on a laptop. Across five independently trained agents evaluated on 100 unseen markets, the agents created \$15.5M of value per company on average against \$14.0M for the best rule-based strategy; three of five were significantly better and none worse, mainly by choosing harder, less crowded use cases and timing pilots to customer readiness. Under a severe compute crunch, all five trailed the rule and survived less often. An apparently decisive single-run advantage (+\$5.9M) shrank to +\$1.5M once training and action-sampling randomness were accounted for. In the simulated market, adoption follows S-curves, a regulated sector is held back by reliability rather than demand, first launchers gain no lasting share, and supply shocks quadruple compute prices. Written for readers new to RL, the paper explains each RL concept alongside the result it produces and states nine hypotheses about real AI markets, each tied to the modelled assumptions it depends on and the evidence needed to test it. Code, trained agents and a live viewer are open source.
+\end{abstract}
+
+\section{Introduction}
+
+The AI industry is a chain of businesses that depend on one another, and the chain behaves in ways no single company controls. Chip factories decide how much capacity to build years ahead. Data centres buy those chips and rent out computing power. Model labs sell access to AI models. Product companies build AI applications on those models, and enterprises decide whether the applications are worth paying for. A shortage, a breakthrough or a wave of failed projects at any point ripples through all the others.
+
+These ripples are hard to reason about and impossible to experiment with in reality. Nobody can rerun the last five years with one chip factory fewer, or with model progress twice as fast. A simulation can: it lets us build a small, transparent version of the industry, change one assumption at a time, and watch what follows.
+
+This paper describes such a simulation, the \emph{AI Economy Lab}, and uses it for two purposes:
+\begin{enumerate}
+  \item \textbf{To understand market dynamics.} How does enterprise adoption spread? What does a supply shock do to prices, failures and competition? Does being first to market pay?
+  \item \textbf{To study decision-making under uncertainty.} We let software agents learn, by trial and error, how to run an AI product company in this market, using reinforcement learning. We then ask what strategies they discover and whether they beat sensible hand-written rules.
+\end{enumerate}
+
+No background in reinforcement learning or economics is assumed. Sections~\ref{sec:scenario} and~\ref{sec:rules} describe the scenario and its rules. Section~\ref{sec:competitors} introduces the competing companies. Section~\ref{sec:results} presents the results and explains each RL idea where it matters. Section~\ref{sec:lessons} separates what the simulation shows from what it might imply for real markets, stating the latter as testable hypotheses.
+
+Our contributions are: (i) an open simulator of a multi-layer AI value chain with audited accounting and fourteen acceptance tests; (ii) a masked, autoregressive actor-critic trained by behaviour cloning followed by PPO on consumer hardware, with a documented failure of pure RL; (iii) a paired evaluation of five independently trained agents on 100 unseen markets that separates market, training and action-sampling randomness, plus shifted regimes and six ablations; and (iv) an educational treatment that connects each RL concept to an observable result. Every parameter is an illustrative assumption chosen to be plausible, not a measurement of the real industry; the value of the exercise lies in the mechanisms it makes visible.
+
+\section{Related work}
+\label{sec:related}
+
+\textbf{Agent-based economics.} Agent-based computational economics studies markets as systems of interacting, boundedly rational agents rather than as equilibria \citep{tesfatsion2006ace,farmer2009economy}. Our simulator follows this tradition with a stylised multi-layer value chain, adding learning agents to one layer.
+
+\textbf{Reinforcement learning in economic settings.} The AI Economist used two-level multi-agent RL to design tax policy in a simulated economy \citep{zheng2022aieconomist}, and RL pricing agents have been shown to learn collusive behaviour \citep{calvano2020collusion}. We focus instead on firm strategy in a technology market with stage-gated projects, uncertain feasibility and supply-chain delays.
+
+\textbf{Methods.} We use Proximal Policy Optimisation \citep{schulman2017ppo} with generalised advantage estimation \citep{schulman2016gae}; PPO with parameter sharing is a strong baseline in multi-agent settings \citep{yu2022mappo}. Initialising RL from imitation of demonstrations goes back to ALVINN \citep{pomerleau1991alvinn} and was central to AlphaGo \citep{silver2016alphago}; imitation's compounding errors are analysed by \citet{ross2011dagger}. Training against frozen past versions reduces non-stationarity in multi-agent learning \citep{vinyals2019alphastar}. Our reward correction follows potential-based shaping \citep{ng1999shaping}, and we mask invalid actions \citep{huang2022masking}. Standard RL texts cover the foundations \citep{sutton2018rl}.
+
+\textbf{Generalisation and evaluation.} RL agents overfit to training environments \citep{cobbe2019generalization}; training on randomised conditions is a common remedy \citep{tobin2017domain}. Results in deep RL are noisy and need many independent evaluations with confidence intervals \citep{henderson2018matters,agarwal2021precipice}, a point our own results illustrate.
+
+\textbf{Market dynamics.} Our supply chain exhibits delayed, amplified responses familiar from the bullwhip effect \citep{lee1997bullwhip} and from experiments on misperceived feedback \citep{sterman1989misperceptions}. Adoption follows the S-shaped diffusion described by \citet{bass1969diffusion} and \citet{rogers2003diffusion}. We test first-mover advantage \citep{lieberman1988firstmover} in a market where all firms share the same underlying models. Business simulation games have long been used for management education \citep{faria2009gaming}; our live viewer serves a similar purpose.
+
+\section{The scenario}
+\label{sec:scenario}
+
+The simulation follows a stylised AI industry for ten years, one month at a time. Six kinds of players form a supply chain (Figure~\ref{fig:valuechain}). Only one kind, the AI product companies, makes the strategic choices this study is about; the others follow fixed rules designed to behave like their real counterparts.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners=3pt, text width=7.4cm, minimum height=1.0cm, align=left, font=\small, inner sep=5pt},
+  hl/.style={box, draw=blue!70!black, fill=blue!6, very thick},
+  arr/.style={-{Stealth[length=2.2mm]}, thick, gray!70!black},
+  lab/.style={font=\scriptsize, text=gray!50!black}]
+\node[box] (fab) {\textbf{Chip fabricator (1)}\\ wafers; new capacity takes 18 months; shortages};
+\node[box, below=0.65cm of fab] (chip) {\textbf{Chip designers (2)}\\ chips; price rises with fab backlog};
+\node[box, below=0.65cm of chip] (dc) {\textbf{Data centres (2)}\\ install chips after 3 months; rent compute};
+\node[box, below=0.65cm of dc] (mod) {\textbf{Model providers (2)}\\ frontier and open-weight; improve every 6--18 months};
+\node[hl, below=0.65cm of mod] (bld) {\textbf{AI product companies (5--12)}\\ the learning agents in this study};
+\node[box, below=0.65cm of bld] (ent) {\textbf{Enterprises (300)}\\ three sectors; adopt, renew or cancel};
+\foreach \a/\b/\p/\m in {fab/chip/wafers/pays for wafers, chip/dc/chips/pays for chips, dc/mod/compute/pays for compute, mod/bld/model access/pays per use, bld/ent/AI products/pays subscriptions} {
+  \draw[arr] ([xshift=-1.0cm]\a.south) -- node[left, lab] {\p} ([xshift=-1.0cm]\b.north);
+  \draw[arr] ([xshift=1.0cm]\b.north) -- node[right, lab] {\m} ([xshift=1.0cm]\a.south);
+}
+\draw[arr, dashed] (ent.east) -- ++(1.3,0) |- node[pos=0.25, right, lab, align=left] {demand signal:\\usage $\rightarrow$ model load\\$\rightarrow$ compute use\\$\rightarrow$ chip orders\\$\rightarrow$ fab backlog} (fab.east);
+\end{tikzpicture}
+\caption{The simulated AI industry. Goods flow down the chain; money and the demand signal flow back up, each with its own delays.}
+\label{fig:valuechain}
+\end{figure}
+
+\textbf{Upstream suppliers.} One fabricator produces wafers; two chip designers turn them into chips of different efficiency and price; two data centres buy the chips and sell computing power in GPU-equivalent units. A data centre orders chips after it has been more than 80\% busy; chips arrive months later; a new fab line takes 18 months. From time to time the fab loses 30--60\% of its output for 3--9 months.
+
+\textbf{Model providers.} A \emph{frontier} model is more capable and more reliable but expensive; an \emph{open-weight} model is cheaper but weaker. Both improve at random intervals of 6--18 months, occasionally in a large jump, and the open model closes part of the gap at each release. Capability is tracked per customer sector.
+
+\textbf{AI product companies.} Each starts with \$1.5M in cash and a \$400k credit line, can run at most three projects, and has a skill level and a risk appetite (cautious, balanced or aggressive). New companies enter from month 12 when incumbents are profitable, up to 12 in the market; companies that cannot pay their bills go bankrupt.
+
+\textbf{Enterprises.} Three hundred enterprises in three sectors that value different things (Table~\ref{tab:sectors}). Each enterprise has a \emph{confidence} in AI products (0--1) that rises with successful pilots, falls with failures and cancellations, and spreads within its sector.
+
+\begin{table}[h]
+\centering
+\small\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrlll}
+\toprule
+Sector & Firms & AI budget & Values most & Reliability needed & Confidence \\
+\midrule
+Customer operations & 110 & \$40k/month & price & 70\% & 0.55 \\
+Software engineering & 100 & \$60k/month & capability & 70\% & 0.60 \\
+Regulated industries & 90 & \$80k/month & reliability & 84\% + per use case & 0.40 \\
+\bottomrule
+\end{tabular}
+\caption{Enterprise sectors.}
+\label{tab:sectors}
+\end{table}
+
+\textbf{Use cases.} The market contains 60 use cases: specific jobs AI could do for one sector. Twenty-four are visible at the start and the rest are discovered over time, faster once models can tackle them. Each has a hidden difficulty, a value per customer that companies see only as a noisy estimate, a number of enterprises that need it (8--35\% of the sector), a development time of 2--5 months per stage, an integration burden, an optional extra reliability requirement and a compute footprint per customer.
+
+\textbf{An illustrative journey.} Suppose a software-engineering use case is worth \$18k a month to each of 30 enterprises. A company sees a difficulty estimate of 0.62 (true value 0.55, hidden). It starts a project on the frontier model with a standard budget (\$20k, then \$25k a month). After about three months of research and three of prototyping it faces the technical gate, with a success chance of about 82\%. It then pilots with three enterprises for two months and passes the commercial gate. It launches at about \$5.8k a month per customer; model usage costs about \$1.6k and support \$0.8k, leaving \$3.4k of margin. Limited to about three new customers a month, it reaches 20 customers and about \$68k monthly profit after seven months, until a rival competes or compute prices rise.
+
+\section{The rules of the simulation}
+\label{sec:rules}
+
+\subsection{The monthly cycle}
+Every month runs the same steps in the same order, so the same seed and decisions reproduce exactly the same history: (1) random shocks and queued arrivals; (2) publication of prices, capacity and confidence with a one-month lag; (3) simultaneous decisions by all companies, which cannot see rivals' current choices; (4) budget checks and fair random allocation of contested pilot customers; (5) project progress and gate draws; (6) adoption, cancellation and compute service; (7) settlement of costs, interest and bankruptcy; (8) price, confidence, supplier and entry updates; (9) scoring.
+
+\subsection{Two kinds of uncertainty}
+The \textbf{technical gate} asks whether the AI can do the job. Its success probability is
+\begin{equation}
+p = \mathrm{clip}_{[0.03,\,0.97]}\;\sigma\!\big(6\,(c_{m,s} - d) + \text{skill} + \text{effort} - 1.5\,b + 0.4\big),
+\end{equation}
+where $c_{m,s}$ is the chosen model's capability in the sector, $d$ the hidden difficulty, $b$ the integration burden and $\sigma$ the logistic function. For a typical company, a model 0.2 weaker than the task gives about 50\%, a matched model about 77\%, and a model 0.2 stronger about 92\%. Failed projects can be retried at extra cost, and each attempt sharpens the company's difficulty estimate.
+
+The \textbf{commercial gate} follows a two-month paid pilot with up to three enterprises. It passes only if pilot customers received more value than they paid plus their required return, and the model met their reliability requirement. When a sector's confidence is low, enterprises may refuse to pilot at all; this \emph{deferral} is recorded separately from failure.
+
+\subsection{Buying decisions, compute and supply}
+Each month every enterprise with an unmet need and budget compares offers, weighing expected benefit (rising with capability and reliability) against price and integration cost, scaled by its confidence. It picks the best offer, and each extra competitor lowers list prices by 12\%. Contracts take 1--4 months to sign, and a company onboards about three customers a month (nine after a \$150k scale-up). Customers who receive less value than expected are much more likely to cancel, and visible cancellations lower sector confidence.
+
+Every customer consumes compute. When demand exceeds installed capacity, all buyers receive the same reduced share; unserved usage is not billed and raises cancellations. The compute price moves with utilisation between \$3 and \$30 per unit. Data centres order chips above 80\% utilisation, with about four months to install; the fab invests when its backlog exceeds 1.2 months of output, with an 18-month lead time.
+
+\subsection{Money, value and information}
+All money moves through a double-entry ledger whose balances always sum to zero. Main company costs are overhead (\$25k/month), development per project (\$12k, \$25k or \$50k per month for lean, standard or premium budgets), starting (\$20k), piloting (\$40k), launching (\$30k), scaling (\$150k) and support (\$0.8k per customer per month), plus model usage. Credit costs 1.2\% a month.
+
+A company's \textbf{value} is its cash minus debt, plus the present value of its live products' recent profit, plus a cautious book value for projects in development. Its monthly change is the company's score and, in Section~\ref{sec:results}, the RL reward.
+
+Companies observe their own state, noisy estimates of use-case difficulty and value, lagged model capability, reliability and prices, sector confidence, and rivals' launches. True difficulty, enterprise-specific benefit, rivals' private decisions, future shocks and gate draws are hidden. Fourteen automated tests confirm determinism, the absence of revenue without demand, persistence of technical failure under unlimited compute, no adoption without innovation, price rises under scarcity, respect for capacity lead times, a balanced ledger and the absence of information leakage.
+
+\section{The competitors}
+\label{sec:competitors}
+
+Each month every company takes one action: hold, start a project (choosing use case, model and budget), pilot, launch, scale, retry, pause or abandon. Five kinds of decision-maker compete (Table~\ref{tab:competitors}). All rule-based strategies share sensible habits: they pilot and launch ready projects, retry or abandon failures, close persistent loss-makers and scale profitable products.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabularx}{\linewidth}{lL}
+\toprule
+Strategy & How it decides \\
+\midrule
+Random & Any allowed action at random (a control). \\
+Easy-first & Starts the use case that looks easiest, on the frontier model with a standard budget. \\
+Best expected value & Scores every use case, model and budget by a hand-built estimate of success odds $\times$ profit and picks the best. \\
+Cash-preserving & One project at a time, open model, lean budget, only with 12 months of cash in hand. \\
+\textbf{Learning agent} & A neural network that improves by playing thousands of simulated markets (reinforcement learning). \\
+\bottomrule
+\end{tabularx}
+\caption{The competing decision-makers.}
+\label{tab:competitors}
+\end{table}
+
+The learning agent sees what a real company could: its finances and projects, a shortlist of 12 use cases with noisy estimates, and last month's market data (415 numbers in total). One network controls every learning company in a market, so it also learns from playing against copies of itself.
+
+\section{Results, and the reinforcement learning behind them}
+\label{sec:results}
+
+\subsection{Trial and error alone fails}
+
+Our first attempt to train an agent from scratch learned to do almost nothing and still lost most of its money. Understanding why is a good introduction to reinforcement learning.
+
+\textbf{The basic loop.} RL trains an \emph{agent} (here, the decision-maker for one company) by letting it act in an \emph{environment} (the simulated market). Each month the agent receives an \emph{observation}, chooses an \emph{action}, and receives a \emph{reward}: the change in its company's value. Its goal is to maximise total reward over the ten-year episode, not just the next month \citep{sutton2018rl}.
+
+\textbf{The policy.} The agent's decision rule is its \emph{policy}: a neural network mapping observations to a probability for each action. Training nudges the network so that actions followed by higher-than-expected reward become more likely. Repeated over millions of decisions, good behaviour can emerge without anyone writing it down.
+
+\textbf{Exploration.} An agent that only repeats what has worked never discovers anything better, so early on it must try things. The randomness of its choices is measured by \emph{entropy}; training gradually lowers it as the agent gains confidence.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/fig_pure_rl.pdf}
+\caption{Learning from scratch. Value created stays near total loss while exploration (entropy) collapses from 2.3 to 0.2 within 61,000 simulated firm-months.}
+\label{fig:purerl}
+\end{figure}
+
+\textbf{Why it failed.} Every investment looks like a loss for months. A project costs money immediately; the payoff arrives only after a correct chain of decisions (start, wait, pilot, wait, launch) 8--12 months later, and only if both gates pass. An agent acting randomly almost never completes that chain, so it mostly sees spending followed by lower value. This is the \emph{credit-assignment problem}: when a reward finally arrives, which earlier action deserves the credit? The agent concluded that spending is bad, stopped exploring, and held still while overhead drained its cash (Figure~\ref{fig:purerl}). Organisations face the same trap when they judge a new kind of project by its first quarter's cash flow.
+
+\subsection{Learn from an expert, then improve}
+
+\textbf{Imitation.} We recorded 77,398 decisions of the best-expected-value rule across 64 markets and trained the network to predict them from the same observations, a technique called \emph{behaviour cloning} \citep{pomerleau1991alvinn}. After six passes it matched the expert's choice of action type 97.8\% of the time, giving the agent a competent starting point instead of random behaviour.
+
+\textbf{A fairer score.} We count money spent on in-development projects as a partly recoverable asset, written off only on failure or abandonment. The episode total is unchanged but investment no longer looks like an immediate loss. This is a form of potential-based \emph{reward shaping} \citep{ng1999shaping}, which changes when credit arrives without changing what counts as winning.
+
+\textbf{PPO.} The agent then played 32 independent markets at once across 8 CPU cores, in 60-month rollouts, and updated its policy with Proximal Policy Optimisation \citep{schulman2017ppo}. Alongside the policy, the network learns a \emph{value function}: a prediction of future reward from the current situation. Each action is judged by its \emph{advantage}, how much better things turned out than predicted \citep{schulman2016gae}, which separates good decisions from good luck. PPO also limits how far the policy may change per update, keeping improvement steady. Rewards are discounted by 0.99 per month, so a reward about six years away counts half as much as one today.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/fig_training.pdf}
+\caption{After imitation, PPO raises value created on five held-out development markets from 13.9 to a best of 22.4 \$M per firm; training stopped after eight checks without improvement.}
+\label{fig:training}
+\end{figure}
+
+\textbf{Held-out testing.} Agents can overfit to their training markets \citep{cobbe2019generalization}. Every five updates we tested on five markets never used for training, kept the best version and stopped after eight checks without improvement (Figure~\ref{fig:training}). Final evaluation uses still other markets. \emph{Action masks} remove impossible choices before sampling \citep{huang2022masking}, and one network with shared parameters controls every learning company, with each company's risk appetite as an input \citep{yu2022mappo}. Seats in training markets were 60\% learning agent, 30\% rule-based and 10\% frozen past versions of the agent \citep{vinyals2019alphastar}. The original training run took 7.7 minutes on an Apple M2 Pro (four repeat runs took 2.7--7.0 minutes; Section~\ref{sec:multiseed}): a 16,384-sample update ran 1.5$\times$ faster on the GPU (0.58\,s against 0.88\,s), while small per-step inference batches ran faster on the CPU.
+
+\subsection{One game, month by month}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/fig_one_game.pdf}
+\caption{One 120-month market (seed 47) with three agent-run and two rule-based founding companies. Shaded: fab shortages; dotted: frontier-model breakthroughs.}
+\label{fig:onegame}
+\end{figure}
+
+In one market (Figure~\ref{fig:onegame}), the best-expected-value company launched first, in month 9, and briefly led; the agent's companies launched on less crowded use cases four months later and passed it by month 24. The early shortage barely mattered because little was being sold; the later one slowed everyone. Three later entrants went bankrupt. The aggressive agent company earned the most, although the agent was never told what ``aggressive'' means; it learned how a bolder company should behave from the risk-appetite input. Values flatten in the final years because only profit that can still be earned before the episode ends is counted. One game proves little: across 20 such games the agent's companies out-earned the rule-based ones in 12, by \$12.0M to \$8.5M on average.
+
+\subsection{Does the learner beat the rules, and does training reliably produce one that does?}
+\label{sec:multiseed}
+
+\textbf{A fair test.} In each test market one company's seat is given in turn to each strategy, while the other four companies and all entrants follow the same fixed rule-based mix. Because a market's randomness depends only on its seed, every strategy faces identical hidden difficulties, customer needs and shocks: a paired comparison. No test market was used in training.
+
+\textbf{Three sources of randomness.} Results vary across markets, across training runs, and across the agent's own action sampling, since the agent draws each action from its policy's probabilities. Testing one trained agent on many markets measures only the first. We therefore trained five agents with the same procedure and different seeds; each stopped early under the same held-out rule after 86{,}000--278{,}000 firm-months (2.7--7.7 minutes). Each agent was evaluated on the same 100 unseen markets (seeds 300--399), with each market's result averaged over three independent draws of the agent's action randomness. The rule-based strategies are deterministic given the market.
+
+\begin{table}[h]
+\centering
+\small\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrr}
+\toprule
+Strategy (base market, 100 unseen markets) & Value created per company & Survival at month 120 \\
+\midrule
+Learning agent, mean of 5 training runs & \$15.5M (range 14.0--17.0) & 97\% \\
+Best expected value & \$14.0M & 99\% \\
+Cash-preserving & \$7.2M & 77\% \\
+Easy-first & \$3.1M & 64\% \\
+Random & $-$\$1.8M & 0\% \\
+\bottomrule
+\end{tabular}
+\caption{Focal-seat results on seeds 300--399. A company starts with \$1.5M; $-$\$1.9M means it lost everything including its credit line.}
+\label{tab:base100}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/fig_multiseed.pdf}
+\caption{Each of five independently trained agents against the best-expected-value rule on the same 100 unseen markets. Blue: significantly better than the rule; red: significantly worse; grey: indistinguishable. Dashed line: mean across runs.}
+\label{fig:multiseed}
+\end{figure}
+
+In the base market, the agents created \$15.5M per company on average against \$14.0M for the best rule (Table~\ref{tab:base100}). The average lead is $+1.5$\,\$M with a standard deviation of 1.5\,\$M across runs (range $-0.1$ to $+2.9$). Three of the five agents are significantly better than the rule, two are indistinguishable from it, and none is worse (Figure~\ref{fig:multiseed}). Training therefore reliably produces an agent at least as good as the strongest hand-written rule, usually somewhat better, but not reliably much better. In the compute crunch every agent trails the rule (average $-1.9$\,\$M, range $-3.0$ to $-0.4$), four of the five significantly, and they survive less often (50--62\% against 79\%).
+
+\textbf{A lesson about evaluation.} An earlier version of this analysis evaluated only the original agent (training seed 0) with a single draw of its action randomness and reported $+5.9 \pm 2.5$\,\$M, an apparently decisive result. Averaged over three draws, the same agent's lead is $+2.9 \pm 1.7$\,\$M, and action sampling alone changes a single market's outcome with a standard deviation of \$6.6M. With only 30 markets, the first estimate was $+4.1 \pm 4.8$\,\$M. Each additional source of randomness we accounted for shrank the apparent advantage, as the RL evaluation literature warns \citep{henderson2018matters,agarwal2021precipice}.
+
+\textbf{Other regimes (exploratory).} The original agent, evaluated with a single draw on 30 markets per regime, led the best rule by $+0.8$ to $+4.9$\,\$M under faster or slower technology progress, harder use cases and a wave of entrants, with every interval including zero. These regimes were not repeated across training seeds, so we treat them as exploratory.
+
+The analyses in Sections~\ref{sec:behaviour} and~\ref{sec:ablation} use the original agent (training seed 0), one of the stronger runs. They describe how that agent behaves, not every run.
+
+\subsection{The strategy the learner discovered}
+\label{sec:behaviour}
+
+\begin{table}[h]
+\centering
+\small\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrr}
+\toprule
+Behaviour (base market, mixed population) & Agent & Best exp.\ value & Cash-pres. & Easy-first \\
+\midrule
+Value created per company & \$9.4M & \$4.0M & \$7.8M & \$1.5M \\
+Survival at month 120 & 93\% & 68\% & 83\% & 63\% \\
+True difficulty of use cases started & 0.61 & 0.52 & 0.49 & 0.39 \\
+Starts in the regulated sector & 31\% & 14\% & 3\% & 30\% \\
+Starts on the frontier model & 53\% & 46\% & 0\% & 100\% \\
+Budget lean / standard / premium (\%) & 11/63/26 & 38/19/44 & 100/0/0 & 0/100/0 \\
+Pilots refused (customers not ready) per company & 1.6 & 7.2 & 4.2 & 0.0 \\
+Technical failures per company & 1.6 & 0.7 & 1.2 & 0.6 \\
+Decisions spent scaling a product & 0\% & 1.7\% & 1.6\% & 2.7\% \\
+\bottomrule
+\end{tabular}
+\caption{Behaviour of the original agent (training seed 0) in 30 base markets with two agent companies, one of each rule, and entrants split between the agent and best expected value (448 companies).}
+\label{tab:behaviour}
+\end{table}
+
+Table~\ref{tab:behaviour} shows three patterns. First, the agent fails more and earns more: it suffered more than twice the technical failures of the best-expected-value rule but aimed at harder, less crowded, more valuable use cases, including regulated ones the rule avoided. The rule scores use cases in isolation; the agent learned that a contested use case is worth less than its spreadsheet value. Second, it learned timing: the rule offered pilots to sectors not yet ready and was refused 7.2 times per company, while the agent waited. Third, it never paid to scale up, either a learning gap or a sign that scaling is overpriced here.
+
+\subsection{Which forces matter}
+\label{sec:ablation}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/fig_ablation.pdf}
+\caption{Ablations: original agent (training seed 0) minus best-expected-value rule with one mechanism switched off (30 markets each, one sampling draw). The dashed line marks the same comparison in the full simulation.}
+\label{fig:ablation}
+\end{figure}
+
+An \emph{ablation} removes one part of a system and measures what changes. With the trained agent unchanged, we switched off one mechanism at a time (Figure~\ref{fig:ablation}). Without competition (each use case claimable by one company), the best-expected-value rule earned \$23.5M against the agent's \$18.3M: the agent's habit of avoiding crowded use cases only pays when rivals exist. Without technical failure, the agent's lead grew to \$12.3M, as its appetite for hard use cases paid off in full. Removing supply bottlenecks or delayed capacity widened the lead by about \$1M; removing confidence feedback or risk heterogeneity narrowed it slightly. Those four intervals span about $\pm$\$5M, so only the competition and technical-failure effects are large relative to noise. Learned strategies are tuned to the world they were trained in.
+
+\subsection{How the market behaves}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/fig_adoption.pdf}
+\caption{Active deployments by sector, mean of 30 base markets. One deployment is one enterprise subscribed to one use case, so a sector's count can exceed its roughly 20 use cases. Possible deployments per sector (enterprises with a need, summed over that sector's use cases) average 481, 413 and 384 for customer operations, software engineering and regulated industries.}
+\label{fig:adoption}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/fig_calibration.pdf}
+\caption{Technical gate outcomes by true difficulty across 1,787 gates in 30 base markets.}
+\label{fig:calibration}
+\end{figure}
+
+Adoption follows S-curves in every sector (Figure~\ref{fig:adoption}), consistent with classic diffusion models \citep{bass1969diffusion}. We count adoption as \emph{deployments}: one enterprise subscribed to one use case. By month 120, customer operations has 145 active deployments (30\% of its 481 possible) and software engineering 124 (30\% of 413), but the regulated sector only 89 (23\% of 384) despite the largest budgets. Adoption plateaus well below its potential because only use cases with a live product can be adopted, and budgets, value hurdles and each product's sales capacity limit the rest. The lag is about reliability, not demand: 46 of 51 failed regulated commercial gates failed on reliability, against none in the other sectors.
+
+Technical success fell from 90\% for the easiest use cases to 35\% for the hardest, within four points of the assigned odds in every band (Figure~\ref{fig:calibration}). In 249 cases where several companies launched the same use case (3.8 on average), the first launcher ended with 32\% of customers, about an even split (34\%): no lasting first-mover advantage when every firm builds on the same models \citep{lieberman1988firstmover}. Being early in the market did pay: founding companies created \$10.4M of value on average with 86\% survival, against \$4.6M and 77\% for the 298 later entrants.
+
+\subsection{When the supply chain breaks}
+
+In the compute-crunch regime, fab shortages are three times as likely, deeper (50--80\% of output) and longer (6--12 months), data centres start with 42\% less capacity, and new fab lines take 24 months.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/fig_price.pdf}
+\caption{Compute price, mean of 30 markets per regime.}
+\label{fig:price}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/fig_survival.pdf}
+\caption{Share of founding companies still solvent in 30 compute-crunch markets with a mixed population.}
+\label{fig:survival}
+\end{figure}
+
+Compute prices peak at 4.4 times the base market and stay three times higher to the end (Figure~\ref{fig:price}), because new capacity arrives slowly, a delayed and amplified response reminiscent of the bullwhip effect \citep{lee1997bullwhip,sterman1989misperceptions}. The served share of compute demand falls to 82\% by month 36, cancellations rise 40\%, bankruptcies triple (8.9 against 3.0 per market), and total value created for enterprises, AI companies and suppliers falls 38\%, from \$786M to \$484M per market.
+
+The agent struggles here (Figure~\ref{fig:survival}). It never trained on shocks this severe, a case of \emph{distribution shift}: a learned policy is only as good as the situations it has experienced. It kept running three projects on standard and premium budgets, with 42\% of starts on the expensive frontier model. The cash-preserving rule earned the most in this mixed population (\$4.6M per company). Risk appetite also reversed: among agent-run companies, balanced ones earned most in the base market (\$10.8M, against \$8.6M cautious and \$9.0M aggressive), while under the crunch cautious companies earned three times as much as aggressive ones (\$1.3M against \$0.4M) and survived more often (60\% against 48\%). Training on randomised conditions, including deliberate shocks, is the standard remedy \citep{tobin2017domain}.
+
+\section{From simulated findings to real-world hypotheses}
+\label{sec:lessons}
+
+The experiments in Section~\ref{sec:results} establish consequences of the model's assumptions, not facts about actual AI markets. Reliability thresholds, competition rules, capacity delays, confidence dynamics and every price were supplied by us; the simulation shows what follows if they hold. We therefore state each possible real-world implication as a hypothesis, name the modelled assumptions it rests on, and say what evidence would test it (Table~\ref{tab:hypotheses}). Where an ablation switched a mechanism off (Section~\ref{sec:ablation}), we know that the finding depends on that mechanism within the model; for the others, the dependence is inferred from the model's structure. Two findings (H1 and H9) concern the learning method rather than the market, and their transfer to people and organisations is an analogy, not a result.
+
+\begin{table}[t]
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{0.4cm}LLL}
+\toprule
+ & Simulated finding & Depends on these modelled assumptions & Evidence needed in real markets \\
+\midrule
+H1 & Pure RL learned to do nothing; imitation followed by RL succeeded. & Payoffs arrive 8--12 months after spending, behind a fixed sequence of stages. & Analogy only: studies of how early cash-flow evaluation affects continuation of multi-stage innovation projects. \\
+H2 & The original agent accepted twice the technical failures for harder, less contested use cases; across five training runs, agents earned 11\% more than the best rule on average. & Success odds fall smoothly with difficulty; value is independent of difficulty; each rival cuts price 12\%. Ablation: the advantage reverses without competition. & Project-level data linking difficulty, failure, competition and returns across AI deployments. \\
+H3 & The regulated sector adopted slowest despite the largest budgets; 46 of 51 failed pilots failed on reliability. & An 84--92\% reliability floor applied as a hard pass/fail gate; model reliability rising about one point per release. & Adoption timing in regulated industries against the measured reliability of available models. \\
+H4 & Pilots offered to unready sectors were refused 7.2 times per company (1.6 for the agent). & Confidence is shared and diffuses within a sector and scales adoption. Ablation: removing it changes the agent's lead little. & Whether one vendor's failure measurably lowers other vendors' pilot acceptance in the same sector. \\
+H5 & A fab shortage raised compute prices 4.4$\times$ and they stayed 3$\times$ higher; value created fell 38\%. & 18--24-month capacity lead times; a bounded price rule driven by utilisation; shock frequency and depth chosen by us. & Compute price and availability around real capacity shocks; downstream failure rates. \\
+H6 & The first launcher kept 32\% of customers against a 34\% even split; founding firms earned 2.3$\times$ later entrants. & All firms access the same models; customers compare offers on value; a finite set of use cases. & Market share by launch order for comparable products built on shared foundation models. \\
+H7 & All five agents matched or beat the best rule in calm markets but trailed it under a supply crunch; the best risk appetite also reversed. & Regime parameters we specified; agents trained only in the calm regime. & Strategy performance across real periods of abundant and scarce compute. \\
+H8 & Without rivals, expected-value ranking beat the learner by \$5.2M. & Competition modelled as price discounts and customer choice. Ablation: exclusivity removes the learner's edge. & As H2, plus whether selection rules that ignore rivals underperform in crowded markets. \\
+H9 & One agent with one sampling draw looked decisively better (+\$5.9M); five training runs with averaged sampling gave +\$1.5M. & Variance of this simulator, the training procedure and action sampling. & Methodological; consistent with RL evaluation practice \citep{henderson2018matters,agarwal2021precipice}. Transfer to small samples of business pilots is an analogy. \\
+\bottomrule
+\end{tabularx}
+\caption{Each simulated finding, the assumptions it rests on, and the evidence a real-world claim would require.}
+\label{tab:hypotheses}
+\end{table}
+
+Read this way, the findings are best treated as a map of where to look. The most robust within the model are those an ablation, a sample-size analysis or replication across training runs confirms (H2, H7, H8, H9). The most assumption-bound are those whose magnitude follows directly from parameters we chose (H3, H5). Where a mechanism has a documented real-world counterpart, the direction agrees with prior work, for example amplified supply-chain responses \citep{lee1997bullwhip,sterman1989misperceptions} and S-shaped diffusion \citep{bass1969diffusion}; the magnitudes have not been calibrated against data and should not be quoted as forecasts.
+
+\section{Limitations}
+\label{sec:limitations}
+
+Every parameter is an illustrative choice rather than an estimate from data, and the model has not been calibrated or validated against real market data, so magnitudes mean nothing outside the model; directions of effects are more trustworthy, especially where an ablation isolates the mechanism. Training-seed robustness was measured with five runs in two regimes; the shifted-regime results, the behaviour analysis and the ablations use a single agent, and five runs give only a rough estimate of between-run spread. The agent was initialised by imitating the best-expected-value rule, so some of its behaviour is inherited. Rankings depend on the rivals present: best expected value beat cash-preserving in the crunch against rule-based rivals but lost to it in mixed populations, and no result here is an equilibrium. The agent was trained on a risk-adjusted version of its score while we report unadjusted value. Prices are a fixed share of value, enterprises do not switch providers mid-contract, upstream firms are scripted and always solvent, and model providers do not act strategically. Finally, the agent never chose to scale a product, which we cannot attribute to a learning gap or to the parameter choice.
+
+\section{Conclusion}
+
+A transparent simulation of the AI value chain reproduces recognisable dynamics: S-shaped adoption, reliability-gated regulated markets, sticky supply shocks and fragile first-mover advantages. Reinforcement learning, initialised by imitation and refined by PPO on a laptop, reliably matched and usually modestly exceeded strong hand-written rules in calm simulated markets, by avoiding crowded opportunities and timing customer engagement, but reliably underperformed under a supply shock it had not trained on. Accounting for training and sampling randomness shrank an apparently decisive advantage to a modest one, a reminder that single-run RL results can mislead. We hope the simulator serves both as a teaching tool for reinforcement learning and as a sandbox for generating hypotheses about AI markets that real data must then test.
+
+\section*{Code and data availability}
+The simulator, trained agents, evaluation data, figure scripts and a live viewer in which agents play without human input are available at \url{https://github.com/ravikadam/ai-economy-lab}. Built with PyTorch \citep{paszke2019pytorch}, with Gymnasium and PettingZoo adapters \citep{towers2024gymnasium,terry2021pettingzoo}.
+
+\section*{Acknowledgements}
+The simulator code, experiments and drafting of this paper were carried out with substantial assistance from Claude (Anthropic), an AI system. The author designed the study, directed the work, and reviewed the results and text, and takes full responsibility for the content.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\appendix
+\section{Reproducibility}
+
+All results run on one laptop. Training and imitation markets use seeds of 1{,}000{,}000 and above (each training run shifts them by 10{,}000{,}000 times its seed); development markets are 1000--1004 and evaluation sets are 100--129, 200--229 and 300--399, so no evaluation market is ever used in training. Every parameter lives in YAML files under \texttt{config/}.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabularx}{\linewidth}{lL}
+\toprule
+Step & Command (approximate time on an Apple M2 Pro) \\
+\midrule
+Acceptance tests & \texttt{pytest} (4\,s) \\
+Train (imitation, then PPO) & \texttt{python -m training.train --config config/train.yaml} (8\,min) \\
+30-market evaluation, regimes, ablations & \texttt{python -m training.evaluate --seeds 100:129 --scenarios "config/scenarios/*.yaml" --ablations} (6\,min) \\
+100-market evaluation & \texttt{python -m training.evaluate --seeds 300:399 --scenarios config/scenarios/compute\_crunch.yaml} (5\,min) \\
+Market-dynamics experiments & \texttt{python -m scripts.experiments --seeds 200:229}; \texttt{python scripts/paper\_stats.py} ($<$1\,min) \\
+Figures & \texttt{python paper/make\_figures.py} \\
+Live viewer & \texttt{streamlit run viewer/app.py} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Key settings: 120 months; 5 initial companies, at most 12, entry from month 12; 300 enterprises; 60 use cases, 24 visible at start; \$1.5M capital and \$400k credit per company; 3 projects per company; 12 candidate use cases per observation. PPO: learning rate $10^{-4}$ after cloning, clip 0.2, 4 epochs, minibatch 4{,}096, entropy coefficient 0.01, GAE $\lambda=0.95$, $\gamma=0.99$, 32 worlds $\times$ 60-month rollouts.
+
+\end{document}

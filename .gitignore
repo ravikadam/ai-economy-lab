@@ -4,3 +4,9 @@ __pycache__/
 runs/
 .pytest_cache/
 .claude/
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.blg
+paper/arxiv/
+paper/.replay_tmp/

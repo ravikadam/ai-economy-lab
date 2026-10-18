@@ -31,6 +31,9 @@ uv venv --python 3.12 .venv && VIRTUAL_ENV=.venv uv pip install -e ".[dev]"
 `results/` holds the trained policy (`results/policy/best.pt`) and the numbers behind the paper, so a fresh
 clone can watch the agents play without training: when `runs/latest` does not exist, the code falls back to
 `results/policy`. `results/policy/metrics_pure_ppo_failed.jsonl` is the first, failed pure-PPO run.
+`results/policy_seeds/seed1..4` are four more agents trained with `--seed 1..4`; `results/multiseed.json` compares
+all five against the best rule on 100 unseen markets (`python -m scripts.multiseed_eval --runs <run dirs>`).
+The arXiv paper source, figure script and submission guide are in `paper/`.
 
 ## Layout
 

@@ -59,6 +59,7 @@ class TrainConfig(BaseModel):
     patience: int = 8                       # evals without improvement before early stop
     seed: int = 0
     train_seed_base: int = 1_000_000
+    bc_seed_base: int = 3_000_000
     bc_teacher: str | None = "best_npv"     # behaviour-cloning warm start (None = pure PPO from scratch)
     bc_episodes: int = 64
     bc_epochs: int = 6
@@ -147,6 +148,8 @@ def main(argv=None):
     ap.add_argument("--steps", type=int, default=None)
     ap.add_argument("--workers", type=int, default=None)
     ap.add_argument("--run-name", default=None)
+    ap.add_argument("--seed", type=int, default=None,
+                    help="training seed; also shifts training and imitation market seeds so runs are independent")
     args = ap.parse_args(argv)
     raw = yaml.safe_load(Path(args.config).read_text()) if Path(args.config).exists() else {}
     tc = TrainConfig.model_validate(raw or {})
@@ -154,6 +157,10 @@ def main(argv=None):
     if args.steps: tc.total_env_steps = args.steps
     if args.workers: tc.num_workers = args.workers
     if args.run_name: tc.run_name = args.run_name
+    if args.seed is not None and args.seed != tc.seed:
+        tc.seed = args.seed
+        tc.train_seed_base += 10_000_000 * args.seed
+        tc.bc_seed_base += 10_000_000 * args.seed
 
     random.seed(tc.seed); np.random.seed(tc.seed); torch.manual_seed(tc.seed)
     cfg = load_config(tc.scenario)
@@ -170,7 +177,7 @@ def main(argv=None):
     if tc.bc_teacher:
         from training.bc import behaviour_clone
         bc = behaviour_clone(net, cfg, device, teacher=tc.bc_teacher, episodes=tc.bc_episodes,
-                             workers=tc.num_workers, epochs=tc.bc_epochs)
+                             workers=tc.num_workers, epochs=tc.bc_epochs, seed_base=tc.bc_seed_base)
         write_json(run_dir / "bc.json", bc)
         save_checkpoint(run_dir / "checkpoints" / "bc_init.pt", net, cfg, tc.model_dump(), {"bc": bc})
     act_net = copy.deepcopy(net).to(rdev).eval()
