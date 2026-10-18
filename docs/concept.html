@@ -1,0 +1,314 @@
+<title>AI Economy Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..800&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an operations manual — one reading column, diagrams break out wider, ledger-style tables. */
+:root {
+  --bg: #f3f6f5; --panel: #e7edeb; --fg: #15211d; --muted: #56655f; --rule: #c9d4d0;
+  --accent: #0f766e; --money: #b45309; --demand: #1d4ed8; --bad: #b91c1c;
+  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0e1513; --panel: #17211e; --fg: #e3ece8; --muted: #93a39c; --rule: #2a3833;
+  --accent: #2dd4bf; --money: #f59e0b; --demand: #60a5fa; --bad: #f87171; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0e1513; --panel: #17211e; --fg: #e3ece8; --muted: #93a39c; --rule: #2a3833;
+  --accent: #2dd4bf; --money: #f59e0b; --demand: #60a5fa; --bad: #f87171; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font: 16px/1.6 var(--body); margin: 0; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.col { max-width: 68ch; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.15; margin: 0; }
+h1 { font-size: clamp(2.2rem, 6vw, 3.6rem); font-weight: 800; font-stretch: 118%; letter-spacing: -0.01em; }
+h2 { font-size: 1.55rem; font-weight: 700; font-stretch: 110%; margin-top: 56px; }
+h3 { font-size: 1.05rem; font-weight: 700; font-stretch: 105%; }
+p { margin: 12px 0 0; }
+.eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.lede { font-size: 1.15rem; color: var(--fg); margin-top: 18px; }
+.muted { color: var(--muted); }
+code, .mono { font-family: var(--mono); font-size: .88em; }
+.facts { display: flex; flex-wrap: wrap; gap: 10px 28px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--rule); }
+.facts div { display: flex; flex-direction: column; }
+.facts b { font: 700 1.5rem/1.1 var(--display); font-stretch: 112%; font-variant-numeric: tabular-nums; }
+.facts span { font-size: 13px; color: var(--muted); }
+figure { margin: 24px 0 0; }
+.fig { overflow-x: auto; background: var(--panel); border-radius: 6px; padding: 16px; }
+.fig svg { display: block; width: 100%; min-width: 720px; height: auto; color: var(--fg); }
+.fig.tall svg { min-width: 560px; max-width: 760px; margin: 0 auto; }
+figcaption { font-size: 14px; color: var(--muted); margin-top: 10px; max-width: 80ch; }
+ol.tick { counter-reset: t; list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 0; }
+ol.tick li { counter-increment: t; display: grid; grid-template-columns: 44px 1fr; gap: 12px; padding: 10px 0; border-top: 1px solid var(--rule); }
+ol.tick li::before { content: counter(t); font: 700 1.3rem/1.2 var(--display); color: var(--accent); font-variant-numeric: tabular-nums; }
+ol.tick li > div { min-width: 0; }
+.tbl { overflow-x: auto; margin-top: 18px; }
+table { border-collapse: collapse; width: 100%; font-size: 15px; }
+th, td { text-align: left; padding: 9px 12px 9px 0; border-top: 1px solid var(--rule); vertical-align: top; }
+th { font: 600 12px/1.3 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.formula { font-family: var(--mono); font-size: 14px; background: var(--panel); padding: 12px 14px; border-radius: 6px; margin-top: 14px; overflow-x: auto; white-space: pre; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 28px; margin-top: 18px; }
+.two > div { min-width: 0; }
+.pill { display: inline-block; font: 500 12px/1 var(--mono); padding: 4px 8px; border-radius: 99px; border: 1px solid var(--rule); color: var(--muted); margin: 0 6px 6px 0; }
+.note { border-left: 3px solid var(--money); padding: 4px 0 4px 14px; margin-top: 28px; color: var(--muted); font-size: 15px; }
+pre.cmd { font-family: var(--mono); font-size: 13.5px; background: var(--panel); padding: 14px; border-radius: 6px; overflow-x: auto; margin-top: 14px; line-height: 1.7; }
+/* SVG theming */
+.box { fill: var(--bg); stroke: currentColor; stroke-width: 1.2; }
+.box.you { stroke: var(--accent); stroke-width: 2.2; }
+.box.gate { fill: var(--panel); }
+.box.bad { stroke: var(--bad); stroke-width: 1.6; }
+.t { fill: currentColor; font: 600 13px var(--body); }
+.ts { fill: var(--muted); font: 400 11px var(--body); }
+.tl { fill: currentColor; font: 500 11.5px var(--mono); }
+.ln { fill: none; stroke: currentColor; stroke-width: 1.3; }
+.ln.money { stroke: var(--money); }
+.ln.demand { stroke: var(--demand); stroke-dasharray: 5 4; }
+.ln.bad { stroke: var(--bad); }
+.ln.acc { stroke: var(--accent); stroke-width: 1.8; }
+.c-money { fill: var(--money); } .c-demand { fill: var(--demand); } .c-bad { fill: var(--bad); } .c-acc { fill: var(--accent); }
+.head { fill: currentColor; }
+</style>
+
+<div class="wrap">
+  <header class="col">
+    <div class="eyebrow">Implementation Team Challenge · how the game runs</div>
+    <h1>AI Economy Lab</h1>
+    <p class="lede">Your team runs an AI implementation firm for up to 120 simulated months. You pick enterprise use cases, choose models and budgets, and run pilots, launches and scale-ups. Rival firms are reinforcement-learning agents trained on this same economy on an M2 Pro. The trained policy also coaches your team on every decision.</p>
+    <div class="facts">
+      <div><b>120</b><span>monthly turns per episode</span></div>
+      <div><b>300</b><span>enterprises in 3 sectors</span></div>
+      <div><b>60</b><span>use-case opportunities</span></div>
+      <div><b>5→12</b><span>builder firms, with entry and exit</span></div>
+      <div><b>1,820</b><span>world-months / s on 8 cores</span></div>
+    </div>
+  </header>
+
+  <section>
+    <h2>The economy your firm lives in</h2>
+    <p class="col">Every firm sits in the same value chain. Products flow toward enterprises and money flows back up. Demand also travels backward: when your customers use a product, that load reaches all the way to the chip fab, where new capacity takes 18 months to arrive.</p>
+    <figure>
+      <div class="fig">
+        <svg viewBox="0 0 980 300" role="img" aria-label="Value chain from fabricator to enterprises: products flow right, money flows left, and the demand signal propagates backward from enterprises to the fab.">
+          <defs>
+            <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker>
+            <marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="c-money"/></marker>
+            <marker id="ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="c-demand"/></marker>
+          </defs>
+          <!-- boxes: x = 10 + 168i, w 120 -->
+          <g>
+            <rect class="box" x="10" y="120" width="120" height="60" rx="4"/><text class="t" x="70" y="145" text-anchor="middle">Fabricator</text><text class="ts" x="70" y="163" text-anchor="middle">wafers · yield · capex</text>
+            <rect class="box" x="178" y="120" width="120" height="60" rx="4"/><text class="t" x="238" y="145" text-anchor="middle">Chip designers ×2</text><text class="ts" x="238" y="163" text-anchor="middle">efficiency · price</text>
+            <rect class="box" x="346" y="120" width="120" height="60" rx="4"/><text class="t" x="406" y="145" text-anchor="middle">Data centers ×2</text><text class="ts" x="406" y="163" text-anchor="middle">GPU-eq capacity</text>
+            <rect class="box" x="514" y="120" width="120" height="60" rx="4"/><text class="t" x="574" y="145" text-anchor="middle">Model providers</text><text class="ts" x="574" y="163" text-anchor="middle">frontier · open-weight</text>
+            <rect class="box you" x="682" y="120" width="120" height="60" rx="4"/><text class="t" x="742" y="145" text-anchor="middle">Builder firms</text><text class="ts" x="742" y="163" text-anchor="middle">your team + RL rivals</text>
+            <rect class="box" x="850" y="120" width="120" height="60" rx="4"/><text class="t" x="910" y="145" text-anchor="middle">Enterprises ×300</text><text class="ts" x="910" y="163" text-anchor="middle">ops · software · regulated</text>
+          </g>
+          <!-- supply arcs (above) -->
+          <g>
+            <path class="ln" d="M130,132 Q154,72 178,132" marker-end="url(#a)"/><text class="tl" x="154" y="92" text-anchor="middle">wafers</text>
+            <path class="ln" d="M298,132 Q322,72 346,132" marker-end="url(#a)"/><text class="tl" x="322" y="80" text-anchor="middle">chips</text><text class="ts" x="322" y="94" text-anchor="middle">+3 mo install</text>
+            <path class="ln" d="M466,132 Q490,72 514,132" marker-end="url(#a)"/><text class="tl" x="490" y="92" text-anchor="middle">compute</text>
+            <path class="ln" d="M634,132 Q658,72 682,132" marker-end="url(#a)"/><text class="tl" x="658" y="92" text-anchor="middle">inference</text>
+            <path class="ln acc" d="M802,132 Q826,72 850,132" marker-end="url(#a)"/><text class="tl" x="826" y="80" text-anchor="middle">pilots,</text><text class="tl" x="826" y="94" text-anchor="middle">products</text>
+            <text class="ts" x="70" y="108" text-anchor="middle">new capacity: 18 mo</text>
+          </g>
+          <!-- money arcs (below) -->
+          <g>
+            <path class="ln money" d="M850,168 Q826,228 802,168" marker-end="url(#am)"/><text class="tl c-money" x="826" y="222" text-anchor="middle">subscriptions</text><text class="tl c-money" x="826" y="236" text-anchor="middle">+ integration</text>
+            <path class="ln money" d="M682,168 Q658,228 634,168" marker-end="url(#am)"/><text class="tl c-money" x="658" y="222" text-anchor="middle">per-unit fees</text>
+            <path class="ln money" d="M514,168 Q490,228 466,168" marker-end="url(#am)"/><text class="tl c-money" x="490" y="222" text-anchor="middle">compute fees</text>
+            <path class="ln money" d="M346,168 Q322,228 298,168" marker-end="url(#am)"/><text class="tl c-money" x="322" y="222" text-anchor="middle">chip orders</text>
+            <path class="ln money" d="M178,168 Q154,228 130,168" marker-end="url(#am)"/><text class="tl c-money" x="154" y="222" text-anchor="middle">wafer fees</text>
+          </g>
+          <!-- demand propagation -->
+          <path class="ln demand" d="M910,270 L70,270" marker-end="url(#ad)"/>
+          <text class="tl c-demand" x="490" y="262" text-anchor="middle">demand signal: usage → inference load → compute utilisation → chip orders → fab backlog</text>
+          <text class="tl" x="70" y="40">products →</text><text class="tl c-money" x="70" y="56">← money</text>
+        </svg>
+      </div>
+      <figcaption>Scarcity raises compute prices within bounds, which can make a marginal use case unprofitable. Capacity expansion arrives late and can overshoot into oversupply. None of these cycles is scripted: they come from the delays and pricing rules.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>One month, in order</h2>
+    <p class="col">Each turn is one simulated month. All firms decide at the same time, without seeing each other's current moves. The engine then resolves the month in a fixed order, so the same seed and the same decisions always reproduce the same world.</p>
+    <ol class="tick col">
+      <li><div><b>Shocks and arrivals.</b> Fab shortages (3–9 months), model releases every 6–18 months, chips and capacity that were ordered earlier.</div></li>
+      <li><div><b>Publish the market.</b> Prices, capacity, confidence and launches are published with a one-month lag.</div></li>
+      <li><div><b>Collect decisions.</b> One decision per firm: your team, RL rivals and rule-based firms all submit simultaneously.</div></li>
+      <li><div><b>Reserve budgets.</b> Spend is checked against cash, credit and your reserve floor. Contested pilot customers are allocated fairly. An illegal move becomes a no-op with a penalty.</div></li>
+      <li><div><b>Advance projects.</b> Development progresses, and stage gates sample success with a seeded random draw.</div></li>
+      <li><div><b>Demand.</b> Enterprises adopt or churn, inference runs, and compute is shared out proportionally if it is short.</div></li>
+      <li><div><b>Settle.</b> Overhead, support, interest and credit draws. A firm that cannot pay goes bankrupt and its customers leave.</div></li>
+      <li><div><b>Update the market.</b> Compute and chip prices, enterprise confidence, supplier investment and new entrants.</div></li>
+      <li><div><b>Score.</b> Change in firm value is your raw score; the risk-adjusted score also reflects your risk appetite.</div></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>A use case from idea to scale</h2>
+    <p class="col">Every project passes two independent gates. The technical gate asks whether the model can do the task. The commercial gate asks whether enterprises get more value than they pay and whether the model meets their reliability requirement. A product can pass the first gate and fail the second.</p>
+    <figure>
+      <div class="fig tall">
+        <svg viewBox="0 0 900 700" role="img" aria-label="Project state machine: research, prototype, technical gate, ready to pilot, pilot, commercial gate, ready to launch, deployed, scaled. Failures at either gate go to a failed state from which a retry returns to prototype or to pilot.">
+          <defs>
+            <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker>
+            <marker id="bb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="c-bad"/></marker>
+            <marker id="ba" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="c-acc"/></marker>
+          </defs>
+          <text class="tl c-acc" x="300" y="14" text-anchor="middle">START · use case + model + budget tier</text>
+          <line class="ln acc" x1="300" y1="20" x2="300" y2="38" marker-end="url(#ba)"/>
+          <rect class="box" x="210" y="40" width="180" height="40" rx="4"/><text class="t" x="300" y="65" text-anchor="middle">Research</text>
+          <line class="ln" x1="300" y1="80" x2="300" y2="108" marker-end="url(#b)"/><text class="tl" x="200" y="98" text-anchor="end">signal sharpens</text>
+          <rect class="box" x="210" y="110" width="180" height="40" rx="4"/><text class="t" x="300" y="135" text-anchor="middle">Prototype</text>
+          <line class="ln" x1="300" y1="150" x2="300" y2="175" marker-end="url(#b)"/><text class="tl" x="200" y="167" text-anchor="end">burn $/month by tier</text>
+          <polygon class="box gate" points="300,177 400,205 300,233 200,205"/><text class="t" x="300" y="210" text-anchor="middle">Technical gate</text>
+          <line class="ln" x1="300" y1="233" x2="300" y2="258" marker-end="url(#b)"/><text class="tl" x="200" y="250" text-anchor="end">pass, prob. p</text>
+          <rect class="box" x="210" y="260" width="180" height="40" rx="4"/><text class="t" x="300" y="285" text-anchor="middle">Ready to pilot</text>
+          <line class="ln acc" x1="300" y1="300" x2="300" y2="328" marker-end="url(#ba)"/><text class="tl c-acc" x="200" y="318" text-anchor="end">PILOT · up to 3 customers</text>
+          <rect class="box" x="210" y="330" width="180" height="40" rx="4"/><text class="t" x="300" y="355" text-anchor="middle">Pilot (2 months)</text>
+          <line class="ln" x1="300" y1="370" x2="300" y2="395" marker-end="url(#b)"/>
+          <polygon class="box gate" points="300,397 400,425 300,453 200,425"/><text class="t" x="300" y="430" text-anchor="middle">Commercial gate</text>
+          <line class="ln" x1="300" y1="453" x2="300" y2="478" marker-end="url(#b)"/><text class="tl" x="200" y="470" text-anchor="end">value &gt; cost, reliability ok</text>
+          <rect class="box" x="210" y="480" width="180" height="40" rx="4"/><text class="t" x="300" y="505" text-anchor="middle">Ready to launch</text>
+          <line class="ln acc" x1="300" y1="520" x2="300" y2="548" marker-end="url(#ba)"/><text class="tl c-acc" x="200" y="538" text-anchor="end">LAUNCH · pilots convert</text>
+          <rect class="box you" x="210" y="550" width="180" height="40" rx="4"/><text class="t" x="300" y="575" text-anchor="middle">Deployed · 3 new/mo</text>
+          <line class="ln acc" x1="300" y1="590" x2="300" y2="618" marker-end="url(#ba)"/><text class="tl c-acc" x="200" y="608" text-anchor="end">SCALE · $150k</text>
+          <rect class="box you" x="210" y="620" width="180" height="40" rx="4"/><text class="t" x="300" y="645" text-anchor="middle">Scaled · 9 new/mo</text>
+          <!-- failure paths -->
+          <rect class="box bad" x="560" y="295" width="170" height="40" rx="4"/><text class="t" x="645" y="320" text-anchor="middle">Failed</text>
+          <path class="ln bad" d="M400,205 L645,205 L645,293" marker-end="url(#bb)"/><text class="tl c-bad" x="520" y="197" text-anchor="middle">fail, prob. 1 − p</text>
+          <path class="ln bad" d="M400,425 L645,425 L645,337" marker-end="url(#bb)"/><text class="tl c-bad" x="525" y="445" text-anchor="middle">misses value or reliability</text>
+          <path class="ln" d="M730,315 L800,315 L800,130 L392,130" marker-end="url(#b)"/><text class="tl" x="600" y="122" text-anchor="middle">RETRY technical · +effort bonus</text>
+          <path class="ln" d="M560,322 L480,322 L480,285 L392,285" marker-end="url(#b)"/><text class="tl" x="560" y="360" text-anchor="middle">RETRY commercial · switch model</text>
+          <!-- churn -->
+          <path class="ln bad" d="M390,570 L470,570" marker-end="url(#bb)"/><text class="tl c-bad" x="478" y="566">customers churn when</text><text class="tl c-bad" x="478" y="580">realised value disappoints</text>
+        </svg>
+      </div>
+      <figcaption>PAUSE stops the burn on any project still in development. ABANDON closes any project and frees its slot; a live product loses its customers. A firm runs at most three projects at once, which forces portfolio choices.</figcaption>
+    </figure>
+    <div class="formula">p(technical) = sigmoid( 6·(model capability − difficulty) + skill + R&amp;D effort − 1.5·integration burden + 0.4 ),  clamped to [0.03, 0.97]</div>
+    <p class="col muted" style="font-size:15px">You never see true difficulty, only a noisy signal that sharpens after research and after each attempt. Model releases raise capability, so a use case that is infeasible today can open up later.</p>
+  </section>
+
+  <section>
+    <h2>Two learning loops, one simulator</h2>
+    <p class="col">The machine learns by playing thousands of episodes. Your team learns by playing one, with the trained policy as both opponent and coach. The same engine and the same legality rules drive both loops.</p>
+    <figure>
+      <div class="fig">
+        <svg viewBox="0 0 960 400" role="img" aria-label="Left: the RL training loop in which seeded worlds produce observations for a shared policy, rewards feed a rollout buffer and a PPO update on the MPS GPU returns new weights; held-out evaluation selects best.pt. Right: the team loop of observe, decide, check with the coach, and the market advancing, ending in a debrief with a ghost run. best.pt supplies the rivals and the coach.">
+          <defs>
+            <marker id="c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker>
+            <marker id="ca" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="c-acc"/></marker>
+          </defs>
+          <text class="tl" x="20" y="22">TRAINING LOOP · on the Mac</text>
+          <text class="tl" x="520" y="22">TEAM LOOP · in the workshop</text>
+          <line x1="470" y1="10" x2="470" y2="300" class="ln" style="stroke: var(--rule)"/>
+          <!-- left loop -->
+          <rect class="box" x="30" y="48" width="170" height="48" rx="4"/><text class="t" x="115" y="69" text-anchor="middle">32 seeded worlds</text><text class="ts" x="115" y="85" text-anchor="middle">8 CPU worker processes</text>
+          <rect class="box you" x="270" y="48" width="170" height="48" rx="4"/><text class="t" x="355" y="69" text-anchor="middle">Shared policy</text><text class="ts" x="355" y="85" text-anchor="middle">masked actor-critic</text>
+          <rect class="box" x="30" y="208" width="170" height="48" rx="4"/><text class="t" x="115" y="229" text-anchor="middle">Rollout buffer</text><text class="ts" x="115" y="245" text-anchor="middle">per-seat trajectories</text>
+          <rect class="box" x="270" y="208" width="170" height="48" rx="4"/><text class="t" x="355" y="229" text-anchor="middle">PPO update</text><text class="ts" x="355" y="245" text-anchor="middle">MPS GPU · 1.5× vs CPU</text>
+          <path class="ln" d="M200,62 L268,62" marker-end="url(#c)"/><text class="tl" x="234" y="56" text-anchor="middle">obs+masks</text>
+          <path class="ln" d="M270,84 L202,84" marker-end="url(#c)"/><text class="tl" x="234" y="102" text-anchor="middle">actions</text>
+          <path class="ln" d="M115,96 L115,206" marker-end="url(#c)"/><text class="tl" x="122" y="155">rewards</text>
+          <path class="ln" d="M200,232 L268,232" marker-end="url(#c)"/><text class="tl" x="234" y="224" text-anchor="middle">advantages</text>
+          <path class="ln" d="M355,208 L355,98" marker-end="url(#c)"/><text class="tl" x="362" y="155">weights</text>
+          <rect class="box gate" x="30" y="300" width="170" height="44" rx="4"/><text class="t" x="115" y="320" text-anchor="middle">Warm start</text><text class="ts" x="115" y="335" text-anchor="middle">clone a rule-based firm</text>
+          <path class="ln" d="M200,322 L240,322 L240,150 L300,150 L300,98" marker-end="url(#c)"/>
+          <rect class="box gate" x="270" y="300" width="170" height="44" rx="4"/><text class="t" x="355" y="320" text-anchor="middle">Held-out seeds</text><text class="ts" x="355" y="335" text-anchor="middle">early stop · best.pt</text>
+          <path class="ln" d="M380,256 L380,298" marker-end="url(#c)"/>
+          <!-- right loop -->
+          <rect class="box" x="530" y="48" width="170" height="48" rx="4"/><text class="t" x="615" y="69" text-anchor="middle">Observe</text><text class="ts" x="615" y="85" text-anchor="middle">cash · runway · market</text>
+          <rect class="box" x="770" y="48" width="170" height="48" rx="4"/><text class="t" x="855" y="69" text-anchor="middle">Decide</text><text class="ts" x="855" y="85" text-anchor="middle">use case · model · budget</text>
+          <rect class="box you" x="770" y="208" width="170" height="48" rx="4"/><text class="t" x="855" y="229" text-anchor="middle">Coach + what-if</text><text class="ts" x="855" y="245" text-anchor="middle">12-month replays</text>
+          <rect class="box" x="530" y="208" width="170" height="48" rx="4"/><text class="t" x="615" y="229" text-anchor="middle">Market advances</text><text class="ts" x="615" y="245" text-anchor="middle">1 or 3 months</text>
+          <path class="ln" d="M700,72 L768,72" marker-end="url(#c)"/>
+          <path class="ln" d="M855,96 L855,206" marker-end="url(#c)"/><text class="tl" x="862" y="155">preview lessons</text>
+          <path class="ln" d="M770,232 L702,232" marker-end="url(#c)"/><text class="tl" x="736" y="224" text-anchor="middle">commit</text>
+          <path class="ln" d="M615,208 L615,98" marker-end="url(#c)"/><text class="tl" x="622" y="155">news, lessons</text>
+          <rect class="box gate" x="650" y="300" width="170" height="44" rx="4"/><text class="t" x="735" y="320" text-anchor="middle">Debrief</text><text class="ts" x="735" y="335" text-anchor="middle">ghost run · playbook gaps</text>
+          <path class="ln" d="M660,256 L700,298" marker-end="url(#c)"/><text class="tl" x="590" y="290" text-anchor="middle">final month</text>
+          <!-- bridge -->
+          <path class="ln acc" d="M440,330 L500,330 L500,380 L900,380 L900,258" marker-end="url(#ca)"/>
+          <text class="tl c-acc" x="700" y="373" text-anchor="middle">best.pt plays the rivals and the coach</text>
+        </svg>
+      </div>
+      <figcaption>Training worlds mix seats: 60% the learning policy, the rest rule-based firms and frozen past versions of the policy, so the policy cannot overfit to copies of itself. Your team plays on a fixed seed, so every team in a workshop faces the same market.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>What your team can and cannot see</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Visible to you</th><th>Hidden from everyone</th></tr></thead>
+        <tbody>
+          <tr><td>Your cash, debt, runway, projects and customers</td><td>True difficulty of each use case</td></tr>
+          <tr><td>Noisy difficulty and value signals per use case</td><td>Each enterprise's real benefit</td></tr>
+          <tr><td>Model capability, reliability and unit price (one-month lag)</td><td>Rivals' budgets and current-month moves</td></tr>
+          <tr><td>Sector confidence and adoption; rivals' public launches</td><td>Future shocks and model releases</td></tr>
+          <tr><td>Your estimated success odds and per-customer margin</td><td>The random draw at each gate</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="col muted" style="font-size:15px">The coach sees exactly what you see. When it beats you, it did so with the same information.</p>
+  </section>
+
+  <section>
+    <h2>How a team is scored</h2>
+    <div class="two">
+      <div>
+        <h3>Value created</h3>
+        <p>Change in firm value in $M: cash minus debt, plus the present value of live products and a stage-weighted book value of projects still in development. Bankruptcy wipes it out.</p>
+      </div>
+      <div>
+        <h3>Risk-adjusted score</h3>
+        <p>Value created, minus penalties for losses, thin runway and debt, weighted by the risk appetite you chose: cautious, balanced or aggressive.</p>
+      </div>
+      <div>
+        <h3>Rank and survival</h3>
+        <p>Your place among every firm that lived in the market, including entrants and firms that went bankrupt.</p>
+      </div>
+      <div>
+        <h3>Coach gap</h3>
+        <p>After the game, the coach replays your seed from month 0 in your seat. The difference shows how much value your decisions left on the table, or won.</p>
+      </div>
+    </div>
+    <h3 style="margin-top:32px">Lessons the coach flags</h3>
+    <p class="col">Every decision is checked against an implementation playbook, using only information you had when you made it.</p>
+    <p style="margin-top:12px">
+      <span class="pill">qualify the use case</span><span class="pill">check the capability gap</span><span class="pill">compliance is a gate</span><span class="pill">unit economics</span><span class="pill">pilot where customers are ready</span><span class="pill">keep momentum</span><span class="pill">scale after proof</span><span class="pill">cut losers early</span><span class="pill">fix the root cause</span><span class="pill">protect runway</span><span class="pill">balance the portfolio</span>
+    </p>
+  </section>
+
+  <section>
+    <h2>Missions</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Mission</th><th>Months</th><th>Rivals</th><th>Practises</th></tr></thead>
+        <tbody>
+          <tr><td>1 · Your first AI portfolio</td><td class="mono">60</td><td>rule-based</td><td>qualify, feasibility, unit economics, momentum</td></tr>
+          <tr><td>2 · Winning regulated customers</td><td class="mono">72</td><td>trained RL</td><td>compliance, root cause, pilot design</td></tr>
+          <tr><td>3 · The compute crunch</td><td class="mono">84</td><td>mixed</td><td>unit economics, runway, scaling</td></tr>
+          <tr><td>4 · Full 10-year market cycle</td><td class="mono">120</td><td>trained RL</td><td>portfolio, scaling, sunk cost, runway</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="col muted" style="font-size:15px">Quarterly turns cut a 120-month game to 40 decisions. Your move applies in the first month of each quarter; ready projects are piloted or launched automatically in the other two.</p>
+  </section>
+
+  <section>
+    <h2>Running it</h2>
+    <pre class="cmd">streamlit run viewer/app.py                                   # play, replay, dashboards
+python -m training.train --config config/train.yaml          # BC warm start + PPO (MPS)
+python -m training.evaluate --checkpoint runs/latest --seeds 100:129 --scenarios "config/scenarios/*.yaml" --ablations
+python -m scripts.simulate --config config/base.yaml --seed 42 --plots
+python -m scripts.benchmark                                  # CPU vs MPS, throughput</pre>
+    <p class="note">This is a stylised simulator. Every parameter is an illustrative, configurable default, not a forecast of real AI markets or vendor economics. It is built to rehearse implementation judgement under uncertainty, not to predict outcomes.</p>
+  </section>
+</div>

@@ -1,0 +1,4 @@
+# Held-out: rapid capability progress and frequent breakthroughs.
+extends: ../base.yaml
+name: fast_tech
+technology: {release_interval: [4, 8], capability_step: [0.05, 0.10], breakthrough_prob: 0.3}

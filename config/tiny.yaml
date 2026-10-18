@@ -1,0 +1,10 @@
+# Tiny toy instance for tests and the oracle upper bound.
+name: tiny
+episode: {months: 36}
+builders: {initial_firms: 2, max_firms: 3, entry_start_month: 12}
+opportunities: {count: 8, initially_available: 6}
+demand:
+  sectors:
+    - {name: customer_ops, enterprises: 20, monthly_budget_mean: 40.0, hurdle_roi: 0.3, price_sensitivity: 1.4, capability_weight: 0.6, reliability_weight: 0.6, reliability_floor: 0.70, initial_confidence: 0.55}
+    - {name: software_eng, enterprises: 20, monthly_budget_mean: 60.0, hurdle_roi: 0.2, price_sensitivity: 0.8, capability_weight: 1.6, reliability_weight: 0.5, reliability_floor: 0.70, initial_confidence: 0.60}
+    - {name: regulated, enterprises: 20, monthly_budget_mean: 80.0, hurdle_roi: 0.4, price_sensitivity: 0.9, capability_weight: 0.8, reliability_weight: 2.0, reliability_floor: 0.84, initial_confidence: 0.40}

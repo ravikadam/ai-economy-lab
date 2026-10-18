@@ -1,0 +1,24 @@
+# Shared-policy masked PPO. `device: auto` uses Apple-Silicon MPS for the update step when available.
+scenario: config/base.yaml
+run_name: ppo
+total_env_steps: 300000      # world-months (each world-month = one decision for every firm)
+num_workers: 8               # M2 Pro: 8 of 10 cores for simulation workers
+worlds_per_worker: 4
+rollout_len: 60
+gamma: 0.99
+gae_lambda: 0.95
+lr: 0.0001                     # post-BC fine-tuning rate
+epochs: 4
+minibatch: 4096
+ent_coef: 0.01
+device: auto                 # PPO update device: auto | mps | cpu
+rollout_device: cpu          # per-step inference batches are small; CPU avoids MPS launch latency
+controller_mix: {policy: 0.6, "heuristic:best_npv": 0.15, "heuristic:easy_first": 0.1, "heuristic:cash_preserving": 0.1, frozen: 0.05}
+checkpoint_every: 50000
+eval_every: 5
+eval_seeds: [1000, 1001, 1002, 1003, 1004]   # 5 development seeds (held-out from training worlds)
+patience: 8
+bc_teacher: best_npv         # behaviour-cloning warm start; set to null for pure PPO from scratch
+bc_episodes: 64
+bc_epochs: 6
+value_warmup_iters: 3

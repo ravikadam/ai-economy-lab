@@ -1,0 +1,302 @@
+{
+  "schema_version": "1.0",
+  "name": "base",
+  "episode": {
+    "months": 120
+  },
+  "fab": {
+    "wafer_capacity": 400.0,
+    "yield_rate": 0.85,
+    "chips_per_wafer": 20.0,
+    "wafer_price": 3.0,
+    "capex_per_wafer_capacity": 40.0,
+    "capex_lead_time": 18,
+    "invest_backlog_ratio": 1.2,
+    "invest_step_frac": 0.25,
+    "max_capacity": 4000.0
+  },
+  "chips": {
+    "count": 2,
+    "efficiency": [
+      10.0,
+      8.0
+    ],
+    "base_price": [
+      1.6,
+      1.2
+    ],
+    "price_sensitivity": 0.5
+  },
+  "datacenters": {
+    "count": 2,
+    "initial_capacity": [
+      30000.0,
+      22000.0
+    ],
+    "install_delay": 3,
+    "target_utilization": 0.75,
+    "order_trigger_utilization": 0.8,
+    "order_step_frac": 0.15,
+    "power_cost_per_unit": 0.002,
+    "depreciation": 0.005,
+    "initial_cash": 50000.0
+  },
+  "compute_price": {
+    "initial": 0.006,
+    "floor": 0.003,
+    "ceiling": 0.03,
+    "adjust_rate": 0.6
+  },
+  "technology": {
+    "models": [
+      {
+        "name": "frontier",
+        "open_weight": false,
+        "capability": [
+          0.55,
+          0.6,
+          0.5
+        ],
+        "reliability": 0.9,
+        "compute_per_unit": 1.0,
+        "markup": 2.2
+      },
+      {
+        "name": "open",
+        "open_weight": true,
+        "capability": [
+          0.42,
+          0.45,
+          0.35
+        ],
+        "reliability": 0.82,
+        "compute_per_unit": 0.7,
+        "markup": 1.25
+      }
+    ],
+    "release_interval": [
+      6,
+      18
+    ],
+    "capability_step": [
+      0.03,
+      0.08
+    ],
+    "open_catchup": 0.35,
+    "reliability_step": 0.01,
+    "breakthrough_prob": 0.15,
+    "alpha": 6.0,
+    "beta": 1.0,
+    "gamma": 1.0,
+    "delta": 1.5,
+    "bias": 0.4,
+    "p_min": 0.03,
+    "p_max": 0.97
+  },
+  "demand": {
+    "sectors": [
+      {
+        "name": "customer_ops",
+        "enterprises": 110,
+        "monthly_budget_mean": 40.0,
+        "hurdle_roi": 0.3,
+        "price_sensitivity": 1.4,
+        "capability_weight": 0.6,
+        "reliability_weight": 0.6,
+        "reliability_floor": 0.7,
+        "initial_confidence": 0.55
+      },
+      {
+        "name": "software_eng",
+        "enterprises": 100,
+        "monthly_budget_mean": 60.0,
+        "hurdle_roi": 0.2,
+        "price_sensitivity": 0.8,
+        "capability_weight": 1.6,
+        "reliability_weight": 0.5,
+        "reliability_floor": 0.7,
+        "initial_confidence": 0.6
+      },
+      {
+        "name": "regulated",
+        "enterprises": 90,
+        "monthly_budget_mean": 80.0,
+        "hurdle_roi": 0.4,
+        "price_sensitivity": 0.9,
+        "capability_weight": 0.8,
+        "reliability_weight": 2.0,
+        "reliability_floor": 0.84,
+        "initial_confidence": 0.4
+      }
+    ],
+    "benefit_dispersion": 0.35,
+    "adoption_steepness": 4.0,
+    "procurement_delay": [
+      1,
+      4
+    ],
+    "sales_capacity_deployed": 3,
+    "sales_capacity_scaled": 9,
+    "churn_base": 0.01,
+    "churn_bad_value": 0.25,
+    "confidence_pilot_success": 0.03,
+    "confidence_pilot_failure": 0.04,
+    "confidence_churn": 0.004,
+    "confidence_bankruptcy": 0.03,
+    "confidence_recovery": 0.02,
+    "confidence_diffusion": 0.3,
+    "price_share": 0.32,
+    "competition_discount": 0.12,
+    "integration_cost_months": 1.5
+  },
+  "opportunities": {
+    "count": 60,
+    "initially_available": 24,
+    "discovery_rate": 0.04,
+    "difficulty_beta": [
+      2.2,
+      2.2
+    ],
+    "difficulty_scale": [
+      0.15,
+      1.05
+    ],
+    "value_lognormal": [
+      2.6,
+      0.5
+    ],
+    "need_share": [
+      0.08,
+      0.35
+    ],
+    "duration": [
+      2,
+      5
+    ],
+    "integration_burden": [
+      0.0,
+      0.6
+    ],
+    "reliability_req": [
+      0.0,
+      0.08
+    ],
+    "inference_units": [
+      80.0,
+      400.0
+    ],
+    "signal_noise": 0.22,
+    "value_signal_noise": 0.25
+  },
+  "builders": {
+    "initial_firms": 5,
+    "max_firms": 12,
+    "initial_cash": 1500.0,
+    "credit_limit": 400.0,
+    "interest_rate": 0.012,
+    "overhead": 25.0,
+    "max_projects": 3,
+    "candidates": 12,
+    "tier_burn": [
+      12.0,
+      25.0,
+      50.0
+    ],
+    "tier_effort": [
+      0.0,
+      0.5,
+      1.0
+    ],
+    "tier_speed": [
+      0.75,
+      1.0,
+      1.5
+    ],
+    "start_cost": 20.0,
+    "pilot_cost": 40.0,
+    "pilot_customers": 3,
+    "pilot_months": 2,
+    "launch_cost": 30.0,
+    "scale_cost": 150.0,
+    "support_cost_per_customer": 0.8,
+    "retry_cost": 30.0,
+    "retry_effort_bonus": 0.35,
+    "research_signal_shrink": 0.5,
+    "skill_range": [
+      0.3,
+      0.8
+    ],
+    "skill_gain_per_launch": 0.03,
+    "reputation_gain": 0.05,
+    "reputation_loss": 0.05,
+    "entry_start_month": 12,
+    "entry_base_prob": 0.04,
+    "entry_profit_sensitivity": 0.002,
+    "entry_max_prob": 0.35,
+    "replace_bankrupt": false,
+    "bankruptcy_penalty": 2.0
+  },
+  "risk": {
+    "profiles": [
+      {
+        "name": "cautious",
+        "bankruptcy_aversion": 3.0,
+        "downside_aversion": 0.6,
+        "loss_sensitivity": 0.4,
+        "uncertainty_aversion": 0.6,
+        "exploration": 0.05,
+        "runway_target": 12.0,
+        "regret_weight": 0.1
+      },
+      {
+        "name": "balanced",
+        "bankruptcy_aversion": 1.5,
+        "downside_aversion": 0.3,
+        "loss_sensitivity": 0.2,
+        "uncertainty_aversion": 0.3,
+        "exploration": 0.1,
+        "runway_target": 8.0,
+        "regret_weight": 0.2
+      },
+      {
+        "name": "aggressive",
+        "bankruptcy_aversion": 0.7,
+        "downside_aversion": 0.1,
+        "loss_sensitivity": 0.05,
+        "uncertainty_aversion": 0.1,
+        "exploration": 0.2,
+        "runway_target": 4.0,
+        "regret_weight": 0.3
+      }
+    ],
+    "profile_weights": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "shocks": {
+    "fab_shortage_prob": 0.02,
+    "fab_shortage_months": [
+      3,
+      9
+    ],
+    "fab_shortage_severity": [
+      0.3,
+      0.6
+    ],
+    "demand_shock_prob": 0.0,
+    "demand_shock_size": [
+      -0.3,
+      0.3
+    ]
+  },
+  "ablation": {
+    "competition": true,
+    "technical_failure": true,
+    "confidence_feedback": true,
+    "supply_bottlenecks": true,
+    "delayed_capex": true,
+    "risk_heterogeneity": true
+  }
+}

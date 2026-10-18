@@ -1,0 +1,6 @@
+# Held-out: frequent, severe fab shortages and slow capacity build-out.
+extends: ../base.yaml
+name: compute_crunch
+shocks: {fab_shortage_prob: 0.06, fab_shortage_months: [6, 12], fab_shortage_severity: [0.5, 0.8]}
+datacenters: {initial_capacity: [18000.0, 12000.0], install_delay: 6}
+fab: {capex_lead_time: 24}

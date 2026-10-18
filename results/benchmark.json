@@ -1,0 +1,13 @@
+{
+  "torch": "2.14.1",
+  "mps_available": true,
+  "single_process_world_months_per_s": 657.1936387096707,
+  "vectorised_world_months_per_s": 1820.0379508699862,
+  "workers": 8,
+  "worlds": 32,
+  "update_cpu_s_per_16384_samples_x4_epochs": 0.8752048015594482,
+  "inference_cpu_ms_batch256": 3.8849592208862305,
+  "update_mps_s_per_16384_samples_x4_epochs": 0.5800237655639648,
+  "inference_mps_ms_batch256": 5.046510696411133,
+  "est_seconds_per_100k_world_months": 54.94390924771627
+}

@@ -1,0 +1,17 @@
+# AI Economy Lab — base scenario (spec §12). All values are illustrative, configurable defaults.
+# Money in $k, time in months, compute in GPU-equivalent units. Unlisted keys use economy/config.py defaults.
+name: base
+episode: {months: 120}
+builders:
+  initial_firms: 5
+  max_firms: 12
+  initial_cash: 1500.0
+  credit_limit: 400.0
+  max_projects: 3
+  candidates: 12
+  entry_start_month: 12
+opportunities: {count: 60, initially_available: 24}
+fab: {wafer_capacity: 400.0, capex_lead_time: 18}
+datacenters: {count: 2, initial_capacity: [30000.0, 22000.0], install_delay: 3}
+shocks: {fab_shortage_prob: 0.02, fab_shortage_months: [3, 9]}
+technology: {release_interval: [6, 18]}

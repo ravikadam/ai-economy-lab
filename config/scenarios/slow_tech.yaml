@@ -1,0 +1,4 @@
+# Held-out: model capability improves slowly; fewer opportunities become feasible.
+extends: ../base.yaml
+name: slow_tech
+technology: {release_interval: [14, 24], capability_step: [0.01, 0.04], breakthrough_prob: 0.05}

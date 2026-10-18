@@ -1,0 +1,4 @@
+# Held-out: aggressive entry — competition intensifies quickly.
+extends: ../base.yaml
+name: entrant_wave
+builders: {entry_start_month: 6, entry_base_prob: 0.15, entry_max_prob: 0.6}

@@ -1,0 +1,6 @@
+# Held-out: harder use cases, noisier signals, more skeptical enterprises.
+extends: ../base.yaml
+name: harsh_failures
+opportunities: {difficulty_scale: [0.3, 1.15], signal_noise: 0.32}
+technology: {bias: 0.0}
+demand: {confidence_pilot_failure: 0.08}
