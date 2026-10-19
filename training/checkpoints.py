@@ -24,10 +24,13 @@ def save_checkpoint(path: Path, net: ActorCritic, cfg: ScenarioConfig, train_cfg
 
 def resolve(path: str | Path) -> Path:
     """Accept a .pt file, a run directory, or runs/latest; return a .pt file.
-    If runs/latest does not exist (fresh clone), fall back to the bundled results/policy."""
+    If runs/latest does not exist (fresh clone), fall back to the bundled paper agent results/v2/seed0."""
     p = Path(path)
-    if not p.exists() and p.as_posix().rstrip("/") == "runs/latest" and Path("results/policy").is_dir():
-        p = Path("results/policy")
+    if not p.exists() and p.as_posix().rstrip("/") == "runs/latest":
+        for fallback in ("results/v2/seed0", "results/policy"):
+            if Path(fallback).is_dir():
+                p = Path(fallback)
+                break
     if p.is_dir():
         for name in ("best.pt", "final.pt"):
             if (p / name).exists():

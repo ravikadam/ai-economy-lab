@@ -64,6 +64,11 @@ class TrainConfig(BaseModel):
     bc_episodes: int = 64
     bc_epochs: int = 6
     value_warmup_iters: int = 3             # value-only updates after BC so early advantages are sane
+    randomize: float = 0.0                  # share of training (and imitation) episodes with a randomised regime
+    entropy_floor: float = 0.0              # raise the entropy bonus when policy entropy drops below this
+    ent_coef_max: float = 0.05
+    dev_eval: bool = False                  # select checkpoints on the 40-market dev set (training/dev_eval.py)
+    dev_workers: int = 6
 
 
 def pick_device(name: str) -> str:
@@ -177,7 +182,8 @@ def main(argv=None):
     if tc.bc_teacher:
         from training.bc import behaviour_clone
         bc = behaviour_clone(net, cfg, device, teacher=tc.bc_teacher, episodes=tc.bc_episodes,
-                             workers=tc.num_workers, epochs=tc.bc_epochs, seed_base=tc.bc_seed_base)
+                             workers=tc.num_workers, epochs=tc.bc_epochs, seed_base=tc.bc_seed_base,
+                             randomize=tc.randomize)
         write_json(run_dir / "bc.json", bc)
         save_checkpoint(run_dir / "checkpoints" / "bc_init.pt", net, cfg, tc.model_dump(), {"bc": bc})
     act_net = copy.deepcopy(net).to(rdev).eval()
@@ -187,7 +193,12 @@ def main(argv=None):
     gen = torch.Generator(device=rdev); gen.manual_seed(tc.seed)
 
     mix = dict(tc.controller_mix)
-    vec = SubprocWorlds(cfg, mix, tc.num_workers, tc.worlds_per_worker, tc.train_seed_base)
+    vec = SubprocWorlds(cfg, mix, tc.num_workers, tc.worlds_per_worker, tc.train_seed_base, tc.randomize)
+    dev = None
+    if tc.dev_eval:
+        from training.dev_eval import DevEvaluator
+        dev = DevEvaluator(cfg, tc.hidden, tc.emb, tc.dev_workers)
+        print(f"[train] dev set: rule-based best_npv scores {dev.rule.mean():.2f} on 40 dev markets", flush=True)
     W, S, T = vec.n, cfg.builders.max_firms, tc.rollout_len
     batch = vec.reset()
     D = batch.obs.shape[-1]
@@ -276,6 +287,10 @@ def main(argv=None):
             t_up = time.time()
             net.train()
             stats = ppo_update(net, opt, data, tc, device, pg_coef=0.0 if it <= tc.value_warmup_iters else 1.0)
+            if tc.entropy_floor > 0 and it > tc.value_warmup_iters:   # entropy floor: adapt the bonus
+                f = 1.25 if stats["entropy"] < tc.entropy_floor else 0.95
+                tc.ent_coef = float(np.clip(tc.ent_coef * f, 0.002, tc.ent_coef_max))
+            stats["ent_coef"] = tc.ent_coef
             t_up = time.time() - t_up
             act_net.load_state_dict({k: v.to(rdev) for k, v in net.state_dict().items()})
 
@@ -303,11 +318,18 @@ def main(argv=None):
                 ep_window = []
             if it % tc.eval_every == 0:
                 net.eval()
-                ev = evaluate_focal(act_net, cfg, tc.eval_seeds, focal="policy", device=rdev)
-                rec["eval_raw_return"] = ev["raw_return_mean"]
-                rec["eval_survival"] = ev["survival"]
-                if ev["raw_return_mean"] > best_eval:
-                    best_eval, bad_evals = ev["raw_return_mean"], 0
+                if dev is not None:
+                    ev = dev(act_net)
+                    rec["dev"] = ev
+                    rec["eval_raw_return"] = ev["score"]
+                    score = ev["score"]
+                else:
+                    ev = evaluate_focal(act_net, cfg, tc.eval_seeds, focal="policy", device=rdev)
+                    rec["eval_raw_return"] = ev["raw_return_mean"]
+                    rec["eval_survival"] = ev["survival"]
+                    score = ev["raw_return_mean"]
+                if score > best_eval:
+                    best_eval, bad_evals = score, 0
                     save_checkpoint(run_dir / "best.pt", net, cfg, tc.model_dump(),
                                     {"iter": it, "env_steps": env_steps, "eval": ev})
                 else:
@@ -324,12 +346,18 @@ def main(argv=None):
                    f"kl={stats['approx_kl']:.3f} env={t_env:.1f}s inf={t_inf:.1f}s upd={t_up:.1f}s")
             if "eval_raw_return" in rec:
                 msg += f" | eval_R={rec['eval_raw_return']:.2f} best={best_eval:.2f}"
+                if "dev" in rec:
+                    d = rec["dev"]
+                    msg += (f" [dev sampled {d['sampled']:.2f} greedy {d['greedy']:.2f} rule {d['rule']:.2f}]"
+                            f" ent_coef={tc.ent_coef:.3f}")
             print(msg, flush=True)
             if bad_evals >= tc.patience:
                 print(f"[train] early stop: no held-out improvement in {tc.patience} evals")
                 break
     finally:
         vec.close()
+        if dev is not None:
+            dev.close()
         metrics_f.close()
     save_checkpoint(run_dir / "final.pt", net, cfg, tc.model_dump(), {"iter": it, "env_steps": env_steps})
     if not (run_dir / "best.pt").exists():

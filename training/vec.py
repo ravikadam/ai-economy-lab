@@ -52,16 +52,21 @@ def _episode_stats(env) -> list[dict]:
     return out
 
 
-def _worker(remote, cfg_dict, mix, n_worlds, seed_base, worker_idx):
+def _worker(remote, cfg_dict, mix, n_worlds, seed_base, worker_idx, randomize=0.0):
     from economy.config import ScenarioConfig
     from envs.multi_env import MultiFirmEnv
+    from training.randomize import config_for_seed
     try:
         cfg = ScenarioConfig.model_validate(cfg_dict)
         envs = [MultiFirmEnv(cfg, mix, min_policy_seats=1) for _ in range(n_worlds)]
         episode = [0] * n_worlds
 
         def seed_for(j):
-            return seed_base + (worker_idx * n_worlds + j) * 100_000 + episode[j]
+            s = seed_base + (worker_idx * n_worlds + j) * 100_000 + episode[j]
+            # domain randomisation: a share of episodes draw a fresh regime (deterministic in the seed)
+            use_dr = randomize > 0 and np.random.default_rng([s, 17]).random() < randomize
+            envs[j].cfg = config_for_seed(cfg, s) if use_dr else cfg
+            return s
 
         batches = [None] * n_worlds
         while True:
@@ -90,14 +95,15 @@ def _worker(remote, cfg_dict, mix, n_worlds, seed_base, worker_idx):
 
 
 class SubprocWorlds:
-    def __init__(self, cfg, mix: dict, num_workers: int, worlds_per_worker: int, seed_base: int):
+    def __init__(self, cfg, mix: dict, num_workers: int, worlds_per_worker: int, seed_base: int,
+                 randomize: float = 0.0):
         ctx = mp.get_context("spawn")
         self.n = num_workers * worlds_per_worker
         self.per = worlds_per_worker
         self.remotes, self.procs = [], []
         for w in range(num_workers):
             a, b = ctx.Pipe()
-            p = ctx.Process(target=_worker, args=(b, cfg.model_dump(), mix, worlds_per_worker, seed_base, w),
+            p = ctx.Process(target=_worker, args=(b, cfg.model_dump(), mix, worlds_per_worker, seed_base, w, randomize),
                             daemon=True)
             p.start()
             self.remotes.append(a)

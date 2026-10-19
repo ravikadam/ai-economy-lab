@@ -1,9 +1,10 @@
 """Aggregate runs/paper/experiments.json into the statistics the paper reports (runs/paper/stats.json)."""
-import json, numpy as np
+import json, os, numpy as np
 from collections import defaultdict
 from pathlib import Path
 
-R = json.loads(Path("runs/paper/experiments.json").read_text())
+D = Path(os.environ.get("PAPER_DIR", "runs/paper"))   # PAPER_DIR=runs/paper_v2 for the v2 analysis
+R = json.loads((D / "experiments.json").read_text())
 out = {}
 def sc(r): return "base" if "base" in r["scenario"] else "crunch"
 SECT = ["customer_ops", "software_eng", "regulated"]
@@ -95,7 +96,7 @@ for name in ("base", "crunch"):
             fm.append(cust.get((L[0][1], opp), 0) / tot)
     d["first_mover_share"] = fm; d["first_mover_n_launchers_mean"] = None
     out[name] = d
-Path("runs/paper/stats.json").write_text(json.dumps(out, default=float))
+(D / "stats.json").write_text(json.dumps(out, default=float))
 for name, d in out.items():
     print("==", name, "n", d["n"])
     print(" welfare", np.mean(d["total_welfare"]), "adopt", np.mean(d["total_adoptions"]), "churn", np.mean(d["total_churn"]), "min_served", np.mean(d["min_served"]), "entries", np.mean(d["entries"]), "exits", np.mean(d["exits"]))

@@ -1,0 +1,54 @@
+{
+  "seed": 47,
+  "spans": [
+    [
+      3,
+      12
+    ],
+    [
+      70,
+      77
+    ]
+  ],
+  "firms": {
+    "0": {
+      "controller": "policy",
+      "profile": "aggressive",
+      "launches": 3,
+      "alive": true
+    },
+    "1": {
+      "controller": "policy",
+      "profile": "balanced",
+      "launches": 3,
+      "alive": true
+    },
+    "2": {
+      "controller": "policy",
+      "profile": "cautious",
+      "launches": 3,
+      "alive": true
+    },
+    "3": {
+      "controller": "heuristic:best_npv",
+      "profile": "cautious",
+      "launches": 3,
+      "alive": true
+    },
+    "4": {
+      "controller": "heuristic:easy_first",
+      "profile": "balanced",
+      "launches": 3,
+      "alive": true
+    }
+  },
+  "ends": [
+    "RL agent (cautious) 5.8",
+    "RL agent (balanced) 8.3",
+    "RL agent (aggressive) 13.4",
+    "Rule: easy-first 13.9",
+    "Rule: best expected value 16.4"
+  ],
+  "entrants": 11,
+  "entrant_bankrupt": 4
+}

@@ -50,8 +50,10 @@ class LiveRun:
         self.scenario, self.seed = scenario, seed
         from agents.runner import PolicyRunner
         from training.checkpoints import load_checkpoint
-        net, _, _ = load_checkpoint(checkpoint)
-        self.runner = PolicyRunner(net, deterministic=False, seed=seed)
+        net, _, ck = load_checkpoint(checkpoint)
+        # play in the action mode chosen on the dev set (v2 checkpoints record it; older ones sample)
+        greedy = ck.get("meta", {}).get("eval", {}).get("mode") == "greedy"
+        self.runner = PolicyRunner(net, deterministic=greedy, seed=seed)
         n0 = self.cfg.builders.initial_firms
         fixed = {s: ("policy" if s < rl_firms else RIVAL_ORDER[(s - rl_firms) % len(RIVAL_ORDER)]) for s in range(n0)}
         self.env = MultiFirmEnv(self.cfg, {"policy": 0.5, "heuristic:best_npv": 0.5}, fixed_controllers=fixed,

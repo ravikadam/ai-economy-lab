@@ -1,0 +1,20 @@
+=== seed 0 start 01:20
+=== seed 0 done 01:34 exit 0
+=== seed 1 start 01:34
+=== seed 1 done 06:56 exit 0
+=== seed 2 start 06:56
+=== seed 2 done 07:21 exit 0
+=== seed 3 start 07:21
+=== seed 3 done 07:34 exit 0
+=== seed 4 start 07:34
+=== seed 4 done 08:42 exit 0
+ALL_DONE
+=== nodr seed 0 start 08:42
+=== nodr seed 0 done 09:04 exit 0
+=== nodr seed 1 start 09:04
+=== nodr seed 1 done 09:31 exit 0
+=== nodr seed 2 start 09:31
+=== nodr seed 2 done 09:43 exit 0
+=== pure seed 0 start 09:43
+=== pure seed 0 done 10:11 exit 0
+CONTROLS_DONE

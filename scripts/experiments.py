@@ -19,14 +19,16 @@ POP = {0: "policy", 1: "best_npv", 2: "policy", 3: "easy_first", 4: "cash_preser
 ENTRANTS = ["policy", "best_npv"]
 
 _net = None
+_greedy = False
 
 
 def _init(ck):
-    global _net
+    global _net, _greedy
     import torch
     torch.set_num_threads(1)
     from training.checkpoints import load_checkpoint
-    _net, _, _ = load_checkpoint(ck)
+    _net, _, meta = load_checkpoint(ck)
+    _greedy = meta.get("meta", {}).get("eval", {}).get("mode") == "greedy"
 
 
 def run_episode(args):
@@ -64,7 +66,8 @@ def run_episode(args):
                 out = _net(torch.as_tensor(obs), torch.as_tensor(np.stack([m["verb"] for _, m in data])),
                            torch.as_tensor(np.stack([m["candidate"] for _, m in data])),
                            torch.as_tensor(np.stack([m["slot"] for _, m in data])),
-                           torch.as_tensor(np.stack([m["tier"] for _, m in data])), generator=gen)
+                           torch.as_tensor(np.stack([m["tier"] for _, m in data])), generator=gen,
+                           deterministic=_greedy)
             for f, (c, _), a in zip(pol, data, out.actions.numpy()):
                 acts[f.firm_id] = decode(tuple(int(x) for x in a), c)
         for f in w.alive_firms():
@@ -108,6 +111,7 @@ def main():
     ap.add_argument("--checkpoint", default="runs/latest")
     ap.add_argument("--seeds", default="200:229")
     ap.add_argument("--workers", type=int, default=8)
+    ap.add_argument("--out", default="runs/paper")
     ap.add_argument("--scenarios", nargs="*", default=["config/base.yaml", "config/scenarios/compute_crunch.yaml"])
     a = ap.parse_args()
     lo, hi = (int(x) for x in a.seeds.split(":"))
@@ -115,7 +119,7 @@ def main():
     t0 = time.time()
     with mp.get_context("spawn").Pool(a.workers, initializer=_init, initargs=(a.checkpoint,)) as pool:
         res = pool.map(run_episode, jobs)
-    out = Path("runs/paper")
+    out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     (out / "experiments.json").write_text(json.dumps(res, default=float))
     print(f"[experiments] {len(res)} episodes in {time.time() - t0:.0f}s -> {out / 'experiments.json'}")

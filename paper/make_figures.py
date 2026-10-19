@@ -1,4 +1,4 @@
-"""Regenerate every paper figure as vector PDF from the data in results/.
+"""Regenerate every paper figure as vector PDF from the v2 run data in results/v2/.
 
 Usage (from the repo root):  python paper/make_figures.py
 """
@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 OUT = ROOT / "paper" / "figures"
 OUT.mkdir(parents=True, exist_ok=True)
-RES = ROOT / "results"
+RES = ROOT / "results" / "v2"   # every figure uses only the v2 run
 
 ACC = "#1f6fd1"      # accent: what each figure is about
 GREY = "#9aa0a6"
@@ -43,154 +43,164 @@ def save(fig, name):
 
 
 def fig_pure_rl():
-    rows = [r for r in jl(RES / "policy/metrics_pure_ppo_failed.jsonl") if "policy_raw_return" in r]
+    rows = [r for r in jl(RES / "control_pure/metrics.jsonl") if "policy_raw_return" in r]
     k = [r["env_steps"] / 1000 for r in rows]
     fig, (a, b) = plt.subplots(1, 2, figsize=(W, 2.4))
-    a.plot(k, [r["policy_raw_return"] for r in rows], color=GREY, lw=2, marker="o", ms=3)
+    a.plot(k, [r["policy_raw_return"] for r in rows], color=GREY, lw=1.6)
     a.axhline(0, color=REF, ls="--", lw=0.8)
     a.axhline(-1.9, color=REF, ls="--", lw=0.8)
     a.text(k[-1], 0.08, "break-even", ha="right", color=REF, fontsize=7.5)
     a.text(k[-1], -1.82, "bankrupt (-1.9)", ha="right", color=REF, fontsize=7.5)
-    a.set_ylim(-2.4, 0.5)
     a.set_title("Value created per firm ($M)", loc="left")
     a.set_xlabel("training experience (thousand firm-months)")
-    b.plot(k, [r["entropy"] for r in rows], color=ACC, lw=2, marker="o", ms=3)
-    b.set_ylim(0, 2.6)
+    ent = [r["entropy"] for r in rows]
+    b.plot(k, ent, color=ACC, lw=1.6)
+    b.set_ylim(0, max(2.6, max(ent) * 1.05))
     b.set_title("Exploration (policy entropy)", loc="left")
     b.set_xlabel("training experience (thousand firm-months)")
-    b.annotate(f"{rows[-1]['entropy']:.2f}", (k[-1], rows[-1]["entropy"]), xytext=(-6, 10),
-               textcoords="offset points", ha="right", color=DARK)
     fig.tight_layout()
     save(fig, "fig_pure_rl")
 
 
 def fig_training():
-    rows = [r for r in jl(RES / "policy/metrics.jsonl") if "eval_raw_return" in r]
-    k = [r["env_steps"] / 1000 for r in rows]
-    v = [r["eval_raw_return"] for r in rows]
-    fig, ax = plt.subplots(figsize=(W, 2.6))
-    ax.plot(k, v, color=ACC, lw=2, marker="o", ms=3.5)
-    ax.axhline(v[0], color=REF, ls="--", lw=0.8)
-    ax.text(k[-1], v[0] - 1.1, f"level right after imitation: {v[0]:.1f}", ha="right", color=REF, fontsize=7.5)
-    i = max(range(len(v)), key=lambda j: v[j])
-    ax.scatter([k[i]], [v[i]], s=80, facecolors="none", edgecolors=ACC, lw=1.5, zorder=3)
-    ax.annotate(f"best {v[i]:.1f} (saved)", (k[i], v[i]), xytext=(0, 9), textcoords="offset points",
-                ha="center", color=DARK)
-    ax.set_ylim(8, 24.5)
+    fig, ax = plt.subplots(figsize=(W, 2.8))
+    rule = None
+    for s in range(5):
+        rows = [r for r in jl(RES / f"seed{s}/metrics.jsonl") if "dev" in r]
+        k = [r["env_steps"] / 1000 for r in rows]
+        v = [r["dev"]["score"] for r in rows]
+        rule = rows[0]["dev"]["rule"]
+        ax.plot(k, v, color=ACC, lw=1.3, alpha=0.75)
+        i = max(range(len(v)), key=lambda j: v[j])
+        ax.scatter([k[i]], [v[i]], s=36, facecolors="none", edgecolors=DARK, lw=1.2, zorder=3)
+        ax.text(k[-1] + 8, v[-1], f"run {s + 1}", fontsize=7, color=REF, va="center")
+    ax.axhline(rule, color=REF, ls="--", lw=0.9)
+    ax.text(5, rule + 0.2, f"best rule on the same 40 practice markets: {rule:.1f}", color=REF, fontsize=7.5)
+    ax.set_ylim(rule - 1, None)
     ax.set_xlabel("training experience (thousand firm-months)")
-    ax.set_ylabel("value created per firm ($M)")
+    ax.set_ylabel("score on practice markets\n($M per firm)")
     fig.tight_layout()
     save(fig, "fig_training")
 
 
 def fig_one_game():
     from game.live import LiveRun
-    r = LiveRun(seed=47, rl_firms=3, months=120, replay_dir=str(ROOT / "paper" / ".replay_tmp"))
+    r = LiveRun(seed=47, rl_firms=3, months=120, checkpoint=str(RES / "seed0/best.pt"),
+                replay_dir=str(ROOT / "paper" / ".replay_tmp"))
     while not r.done:
         r.step()
     w = r.world
     init = [f for f in w.firms.values() if f.birth_month == 0]
-    names = {0: "RL agent (aggressive)", 1: "RL agent (balanced)", 2: "RL agent (cautious)",
-             3: "Rule: best expected value", 4: "Rule: easy-first"}
     fig, ax = plt.subplots(figsize=(W, 3.0))
-    for a, b in [(3, 12), (70, 77)]:
+    shock = [h["month"] for h in w.price_history if h.get("fab_shock", 0) > 0]
+    spans, start = [], None
+    for m in range(0, 122):
+        on = m in shock
+        if on and start is None:
+            start = m
+        if not on and start is not None:
+            spans.append((start, m)); start = None
+    for a, b in spans:
         ax.axvspan(a, b, color="#eceff1", lw=0)
-        ax.text(a, 25.3, "fab shortage", fontsize=7, color=REF)
-    for m in (17, 73):
-        ax.axvline(m, color=REF, ls=":", lw=0.8)
-    ax.text(18, 23.2, "frontier breakthrough", fontsize=7, color=REF)
-    ax.text(74, 2.5, "frontier breakthrough", fontsize=7, color=REF)
+    top = max(v["value"] for v in r.value_hist)
+    if spans:
+        ax.text(spans[0][0], top * 1.04, "fab shortage", fontsize=7, color=REF)
+    ends = []
     for f in init:
         pts = [(v["month"], v["value"]) for v in r.value_hist if v["firm"].startswith(f"{f.firm_id} ")]
         rl = f.controller == "policy"
         ax.plot(*zip(*pts), color=ACC if rl else GREY, lw=1.8, ls="-" if rl else "--")
-        ax.text(121.5, pts[-1][1] + (0.6 if f.firm_id == 4 else (-0.6 if f.firm_id == 3 else 0)),
-                f"{names[f.firm_id]} {pts[-1][1]:.1f}", va="center", fontsize=7.5,
-                color=DARK if rl else REF)
+        lab = (f"RL agent ({f.profile.name})" if rl else
+               "Rule: " + {"heuristic:best_npv": "best expected value", "heuristic:easy_first": "easy-first",
+                           "heuristic:cash_preserving": "cash-preserving"}.get(f.controller, f.controller))
+        ends.append([pts[-1][1], f"{lab} {pts[-1][1]:.1f}", rl])
+    ends.sort()
+    for i in range(1, len(ends)):              # keep end labels apart
+        ends[i][0] = max(ends[i][0], ends[i - 1][0] + top * 0.06)
+    for y, lab, rl in ends:
+        ax.text(121.5, y, lab, va="center", fontsize=7.5, color=DARK if rl else REF)
     ax.set_xlim(0, 120)
-    ax.set_ylim(-2, 26.5)
+    ax.set_ylim(min(-2, ax.get_ylim()[0]), top * 1.12)
     ax.set_xlabel("month")
     ax.set_ylabel("value created ($M)")
     fig.tight_layout()
     save(fig, "fig_one_game")
+    return {"seed": 47, "spans": spans,
+            "firms": {f.firm_id: {"controller": f.controller, "profile": f.profile.name, "launches": f.launches,
+                                  "alive": f.alive} for f in init},
+            "ends": [(e[1]) for e in ends], "entrants": sum(1 for f in w.firms.values() if f.birth_month > 0),
+            "entrant_bankrupt": sum(1 for f in w.firms.values() if f.birth_month > 0 and not f.alive)}
 
 
-def fig_forest():
-    e30 = json.load(open(RES / "eval/report.json"))
-    e100 = json.load(open(RES / "eval100/report.json"))
-    rows = [("Base market", e100["base"], 100), ("Fast tech progress", e30["scenario:fast_tech"], 30),
-            ("Slow tech progress", e30["scenario:slow_tech"], 30),
-            ("Harsher use cases", e30["scenario:harsh_failures"], 30),
-            ("Compute crunch", e100["scenario:compute_crunch"], 100),
-            ("Wave of new entrants", e30["scenario:entrant_wave"], 30)]
-    fig, ax = plt.subplots(figsize=(W, 2.8))
-    for i, (name, rep, n) in enumerate(rows):
-        b = rep["best_npv"]
-        d, h = b["policy_minus_this"], b["policy_minus_this_ci95"]
-        clear = d - h > 0
-        c = ACC if clear else GREY
-        y = len(rows) - 1 - i
-        ax.plot([d - h, d + h], [y, y], color=c, lw=2)
-        ax.scatter([d], [y], color=c, s=40, zorder=3)
-        ax.text(12.6, y, f"{d:+.1f}", va="center", ha="right", fontsize=8.5)
-    ax.set_yticks(range(len(rows)), [f"{n} ({k} markets)" for n, _, k in rows][::-1])
+REGIMES = [("base", "Base market (100)"), ("fast_tech", "Fast tech progress (50)"),
+           ("slow_tech", "Slow tech progress (50)"), ("harsh_failures", "Harsher use cases (50)"),
+           ("entrant_wave", "Wave of entrants (50)"), ("compute_crunch", "Compute crunch (50)")]
+
+
+def fig_test():
+    t = json.load(open(RES / "test.json"))["scenarios"]
+    v2 = {sc: [p for p in t[sc]["runs"] if p["run"].startswith("v2-seed")] for sc, _ in REGIMES}
+    fig, ax = plt.subplots(figsize=(W, 3.0))
+    for i, (sc, lab) in enumerate(REGIMES):
+        y = len(REGIMES) - 1 - i
+        for j, p in enumerate(v2[sc]):
+            c = ACC if p["better"] else ("#c5221f" if p["worse"] else GREY)
+            yy = y + (j - 2) * 0.11
+            ax.plot([p["diff"] - p["ci95"], p["diff"] + p["ci95"]], [yy, yy], color=c, lw=1.2)
+            ax.scatter([p["diff"]], [yy], color=c, s=14, zorder=3)
+        m = sum(p["diff"] for p in v2[sc]) / len(v2[sc])
+        ax.plot([m, m], [y - 0.33, y + 0.33], color=DARK, lw=2)
+        nb = sum(p["better"] for p in v2[sc])
+        ax.text(1.02, y, f"{m:+.1f}  ({nb} of 5 clearly better)", transform=ax.get_yaxis_transform(), va="center", fontsize=8)
     ax.axvline(0, color=REF, lw=1)
-    ax.set_xlim(-6, 13)
-    ax.set_xlabel("learning agent minus best-expected-value rule, value created per company ($M), mean and 95% CI")
+    ax.set_yticks(range(len(REGIMES)), [l for _, l in REGIMES][::-1])
+    ax.set_xlabel("learning agent minus best rule ($M per company); bars show the likely range for each training run")
     ax.grid(axis="y", visible=False)
     fig.tight_layout()
-    save(fig, "fig_forest")
+    save(fig, "fig_test")
 
 
-def fig_multiseed():
-    ms = json.load(open(RES / "multiseed.json"))
-    fig, axes = plt.subplots(1, 2, figsize=(W, 2.5), sharey=True)
-    for ax, key, title in ((axes[0], "base", "Base market"), (axes[1], "compute_crunch", "Compute crunch")):
-        r = ms[key]
-        runs = r["runs"]
-        for i, run in enumerate(runs):
-            d, h = run["diff"], run["ci95"]
-            c = ACC if d - h > 0 else ("#c5221f" if d + h < 0 else GREY)
-            y = len(runs) - 1 - i
-            ax.plot([d - h, d + h], [y, y], color=c, lw=2)
-            ax.scatter([d], [y], color=c, s=36, zorder=3)
-        m = r["diff_mean_across_runs"]
-        ax.axvline(0, color=REF, lw=1)
-        ax.axvline(m, color=DARK, ls="--", lw=0.9)
-        ax.text(m + 0.15, -0.95, f"mean of 5 runs {m:+.1f}", ha="left", fontsize=7.5)
-        ax.set_ylim(-1.3, len(runs) - 0.5)
-        ax.set_title(f"{title}: best rule {r['rule_mean']:.1f} $M", loc="left")
-        ax.set_xlim(-5, 5.5)
-        ax.grid(axis="y", visible=False)
-    axes[0].set_yticks(range(5), [f"training seed {i}" for i in range(5)][::-1])
-    fig.supxlabel("learning agent minus best-expected-value rule ($M per company), mean and 95% CI over 100 markets",
-                  fontsize=8.5)
+def fig_controls():
+    t = json.load(open(RES / "test.json"))["scenarios"]
+    arms = [("v2-seed", "all fixes (5 training runs)", ACC), ("v2nodr-seed", "without varied markets (3 runs)", GREY),
+            ("v2pure-seed", "without imitation (1 run)", "#c5221f")]
+    fig, ax = plt.subplots(figsize=(W, 3.3))
+    for i, (sc, lab) in enumerate(REGIMES):
+        y = len(REGIMES) - 1 - i
+        for j, (pre, name, c) in enumerate(arms):
+            ds = [p["diff"] for p in t[sc]["runs"] if p["run"].startswith(pre)]
+            if not ds:
+                continue
+            m = sum(ds) / len(ds)
+            ax.barh(y + (1 - j) * 0.26, m, height=0.24, color=c, label=name if i == 0 else None)
+            ax.scatter(ds, [y + (1 - j) * 0.26] * len(ds), color=DARK, s=5, zorder=3)
+    ax.axvline(0, color=REF, lw=1)
+    ax.set_yticks(range(len(REGIMES)), [l for _, l in REGIMES][::-1])
+    ax.set_xlabel("learning agent minus best rule ($M per company); bars: average, dots: individual training runs")
+    ax.legend(loc="lower center", bbox_to_anchor=(0.45, 1.0), ncol=3, frameon=False, fontsize=7.5)
+    ax.grid(axis="y", visible=False)
     fig.tight_layout()
-    save(fig, "fig_multiseed")
+    save(fig, "fig_controls")
 
 
 def fig_ablation():
-    e30 = json.load(open(RES / "eval/report.json"))
-    full = e30["base"]["best_npv"]["policy_minus_this"]
+    a = json.load(open(RES / "ablations.json"))["ablations"]
+    full = a["full"]["diff"]
     labels = {"technical_failure": "technical failure", "delayed_capex": "delayed capacity",
               "supply_bottlenecks": "supply bottlenecks", "confidence_feedback": "confidence feedback",
               "risk_heterogeneity": "different risk appetites", "competition": "competition"}
-    rows = []
-    for k, lab in labels.items():
-        s = e30[f"ablation:no_{k}"]
-        rows.append((f"without {lab}", s["policy"]["raw_return_mean"] - s["best_npv"]["raw_return_mean"]))
-    rows.sort(key=lambda r: -r[1])
+    rows = sorted([(f"without {lab}", a[k]["diff"], a[k]["ci95"]) for k, lab in labels.items()], key=lambda r: -r[1])
     fig, ax = plt.subplots(figsize=(W, 2.6))
-    for i, (lab, d) in enumerate(rows):
+    for i, (lab, d, h) in enumerate(rows):
         y = len(rows) - 1 - i
         ax.barh(y, d, color=ACC if d < 0 else GREY, height=0.6)
-        ax.text(15.5, y, f"{d:+.1f}", va="center", ha="right", fontsize=8.5)
+        ax.plot([d - h, d + h], [y, y], color=DARK, lw=1)
+        ax.text(1.01, y, f"{d:+.1f}", transform=ax.get_yaxis_transform(), va="center", fontsize=8.5)
     ax.axvline(full, color=REF, ls="--", lw=0.8)
-    ax.text(full + 0.3, len(rows) - 0.4, f"full simulation: {full:+.1f}", fontsize=7.5, color=REF)
+    ax.text(full, len(rows) - 0.35, f" full simulation: {full:+.1f}", fontsize=7.5, color=REF)
     ax.axvline(0, color=REF, lw=1)
     ax.set_yticks(range(len(rows)), [r[0] for r in rows][::-1])
-    ax.set_xlim(-8, 16)
-    ax.set_xlabel("learning agent minus best-expected-value rule ($M per company), 30 markets each")
+    ax.set_xlabel("learning agents (average of 5) minus best rule ($M per company), 50 markets each")
     ax.grid(axis="y", visible=False)
     fig.tight_layout()
     save(fig, "fig_ablation")
@@ -260,7 +270,11 @@ def fig_survival():
     sv = json.load(open(RES / "stats.json"))["crunch"]["survival_curve_initial"]
     names = {"policy": "learning agent", "best_npv": "best expected value", "cash_preserving": "cash-preserving",
              "easy_first": "easy-first"}
-    off = {"best_npv": 0.03, "cash_preserving": -0.03, "policy": 0, "easy_first": 0}
+    ends = sorted((sv[k][-1], k) for k in names)
+    pos = {}
+    for i, (y, k) in enumerate(ends):          # keep end labels at least 6 points apart
+        pos[k] = y if i == 0 else max(y, pos[ends[i - 1][1]] + 0.06)
+    off = {k: pos[k] - sv[k][-1] for k in names}
     fig, ax = plt.subplots(figsize=(W, 2.6))
     for k, lab in names.items():
         y = [1.0] + sv[k]
@@ -279,6 +293,8 @@ def fig_survival():
 
 
 if __name__ == "__main__":
-    for f in (fig_multiseed, fig_pure_rl, fig_training, fig_one_game, fig_forest, fig_ablation, fig_adoption, fig_calibration,
+    for f in (fig_pure_rl, fig_training, fig_test, fig_controls, fig_ablation, fig_adoption, fig_calibration,
               fig_price, fig_survival):
         f()
+    info = fig_one_game()
+    (RES / "one_game.json").write_text(json.dumps(info, indent=2, default=str))

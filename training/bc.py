@@ -17,16 +17,19 @@ from agents.actions import encode
 
 
 def _collect(args):
-    cfg_dict, teacher, seeds = args
+    cfg_dict, teacher, seeds, randomize = args
     from agents.heuristics import HEURISTICS
     from agents.masks import build_masks
     from agents.observation import build_observation
     from economy.config import ScenarioConfig
     from economy.world import World
-    cfg = ScenarioConfig.model_validate(cfg_dict)
+    from training.randomize import config_for_seed
+    base = ScenarioConfig.model_validate(cfg_dict)
     obs, vm, cm, sm, tm, act = [], [], [], [], [], []
     skipped = 0
     for seed in seeds:
+        dr = randomize > 0 and np.random.default_rng([seed, 17]).random() < randomize
+        cfg = config_for_seed(base, seed) if dr else base
         w = World(cfg, seed)
         rng = np.random.default_rng(seed)
         for _ in range(cfg.episode.months):
@@ -47,9 +50,10 @@ def _collect(args):
             np.array(act, np.int64), skipped)
 
 
-def collect_dataset(cfg, teacher: str, episodes: int, workers: int, seed_base: int = 3_000_000):
+def collect_dataset(cfg, teacher: str, episodes: int, workers: int, seed_base: int = 3_000_000,
+                    randomize: float = 0.0):
     seeds = [seed_base + i for i in range(episodes)]
-    chunks = [(cfg.model_dump(), teacher, seeds[i::workers]) for i in range(workers)]
+    chunks = [(cfg.model_dump(), teacher, seeds[i::workers], randomize) for i in range(workers)]
     with mp.get_context("spawn").Pool(workers) as pool:
         parts = pool.map(_collect, chunks)
     data = [np.concatenate([p[k] for p in parts if len(p[k])]) for k in range(6)]
@@ -57,10 +61,10 @@ def collect_dataset(cfg, teacher: str, episodes: int, workers: int, seed_base: i
 
 
 def behaviour_clone(net, cfg, device: str, teacher: str = "best_npv", episodes: int = 64, workers: int = 8,
-                    seed_base: int = 3_000_000,
+                    seed_base: int = 3_000_000, randomize: float = 0.0,
                     epochs: int = 6, batch: int = 4096, lr: float = 1e-3, log=print) -> dict:
     t0 = time.time()
-    (obs, vm, cm, sm, tm, act), skipped = collect_dataset(cfg, teacher, episodes, workers, seed_base)
+    (obs, vm, cm, sm, tm, act), skipped = collect_dataset(cfg, teacher, episodes, workers, seed_base, randomize)
     log(f"[bc] collected {len(obs)} teacher decisions ({skipped} skipped: START target outside candidate set) "
         f"in {time.time() - t0:.0f}s")
     T = [torch.as_tensor(x, device=device) for x in (obs, vm, cm, sm, tm, act)]

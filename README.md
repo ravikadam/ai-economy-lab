@@ -21,24 +21,27 @@ uv venv --python 3.12 .venv && VIRTUAL_ENV=.venv uv pip install -e ".[dev]"
 | Acceptance tests (spec §15) | `.venv/bin/python -m pytest` |
 | Headless simulation + replay + PNG dashboard | `.venv/bin/python -m scripts.simulate --config config/base.yaml --seed 42 --plots` |
 | Throughput and CPU vs MPS benchmark | `.venv/bin/python -m scripts.benchmark` |
-| Train (behaviour cloning, then shared masked PPO; update step on MPS) | `.venv/bin/python -m training.train --config config/train.yaml` |
+| Train one agent (imitation, then shared masked PPO on varied markets; update step on MPS) | `.venv/bin/python -m training.train --config config/train_v2.yaml --seed 0` |
+| One-time test on fresh markets (paper) | `.venv/bin/python -m scripts.test_v2 --runs "runs/v2-seed*" "runs/v2nodr-seed*" "runs/v2pure-seed*"` |
+| Switch-off tests (paper) | `.venv/bin/python -m scripts.ablate_v2 --runs "runs/v2-seed*"` |
 | Evaluate on unseen seeds, held-out regimes, ablations | `.venv/bin/python -m training.evaluate --checkpoint runs/latest --seeds 100:129 --scenarios "config/scenarios/*.yaml" --ablations` |
-| Paper experiments and statistics | `.venv/bin/python -m scripts.experiments --seeds 200:229 && .venv/bin/python scripts/paper_stats.py` |
+| Paper behaviour and market statistics | `.venv/bin/python -m scripts.experiments --checkpoint results/v2/seed0/best.pt --seeds 200:229 --out runs/paper_v2 && PAPER_DIR=runs/paper_v2 .venv/bin/python scripts/paper_stats.py` |
 | Live viewer: watch RL agents play on their own, replays, dashboards | `.venv/bin/streamlit run viewer/app.py` |
 
 ## Bundled results
 
-`results/` holds the trained policy (`results/policy/best.pt`) and the numbers behind the paper, so a fresh
-clone can watch the agents play without training: when `runs/latest` does not exist, the code falls back to
-`results/policy`. `results/policy/metrics_pure_ppo_failed.jsonl` is the first, failed pure-PPO run.
-`results/policy_seeds/seed1..4` are four more agents trained with `--seed 1..4`; `results/multiseed.json` compares
-all five against the best rule on 100 unseen markets (`python -m scripts.multiseed_eval --runs <run dirs>`).
-The arXiv paper source, figure script and submission guide are in `paper/`.
+`results/v2/` holds everything behind the paper: the five trained agents (`seed0`..`seed4`), the comparison
+runs (`control_nodr_seed0..2` trained without varied markets, `control_pure` trained without imitation), the
+one-time test (`test.json`), the switch-off tests (`ablations.json`) and the market statistics (`stats.json`).
+The test plan was written before training: `paper/PROTOCOL_v2.md`. A fresh clone can watch the agents play
+without training: when `runs/latest` does not exist, the code falls back to `results/v2/seed0`.
+Older results from the first version of the study (`results/policy`, `results/policy_seeds`, `results/multiseed.json`)
+are kept for reference. The arXiv paper source, figure script and submission guide are in `paper/`.
 
 ## Layout
 
 ```
-config/      base.yaml, train.yaml, tiny.yaml, scenarios/ (held-out regimes)
+config/      base.yaml, train.yaml, train_v2*.yaml, tiny.yaml, scenarios/ (held-out regimes)
 economy/     world.py (9-phase monthly tick), supply, technology, demand, clearing, accounting (ledger), events, actions (legality)
 entities/    firms, opportunities, suppliers, enterprises (struct-of-arrays)
 agents/      observation, masks, actions, policy (autoregressive masked actor-critic), heuristics, reward, runner
@@ -48,7 +51,7 @@ game/        session (human seat, coach, what-if, ghost run, debrief), coach (pl
 analysis/    replay logs, metrics frames, PNG plots
 viewer/      Streamlit app
 docs/        concept.html (how the game runs)
-scripts/     simulate, benchmark, experiments, paper_stats
+scripts/     simulate, benchmark, experiments, paper_stats, test_v2, ablate_v2
 ```
 
 ## Design decisions (documented per spec §18)
