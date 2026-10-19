@@ -43,3 +43,14 @@ The test runs once, after all arms finish, on the markets listed above.
 ## Analyses fixed in advance
 - Behaviour and market-dynamics analysis uses v2 seed 0, chosen before training, and analysis markets 200–229.
 - Ablations: all five v2 seeds, each mechanism switched off, on seeds 400–449.
+
+## Amendments after the test (added 2026-10-19, 21:40 IST onwards; not part of the plan above)
+- **Scoring correction.** A bankrupt company's final value still counted its unfinished projects and recently
+  live products. Fixed in `economy/world.py` (`net_worth`: a bankrupt firm is worth cash − debt). The test games,
+  switch-off games and analysis markets were replayed once with identical decisions and re-scored; pre-fix results
+  are kept as `results/v2/*_before_scoring_fix.json`. Survival and every main-agent classification were unchanged.
+- **Additional intervals.** `scripts/ci_v2.py` adds percentile-bootstrap intervals per agent and a two-level
+  (training runs × markets) bootstrap for the five-agent average. The per-agent normal-approximation interval above
+  remains the one that decides the success criterion.
+- **Provenance.** This file was first committed in `68bf412`, together with the results; its local creation time
+  (01:19:37 IST) precedes the first training run (01:20:49 IST) but is not independent evidence.

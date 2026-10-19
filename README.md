@@ -32,7 +32,10 @@ uv venv --python 3.12 .venv && VIRTUAL_ENV=.venv uv pip install -e ".[dev]"
 
 `results/v2/` holds everything behind the paper: the five trained agents (`seed0`..`seed4`), the comparison
 runs (`control_nodr_seed0..2` trained without varied markets, `control_pure` trained without imitation), the
-one-time test (`test.json`), the switch-off tests (`ablations.json`) and the market statistics (`stats.json`).
+test (`test.json`), its confidence intervals (`intervals.json`, from `python -m scripts.ci_v2`), the
+switch-off tests (`ablations.json`) and the market statistics (`stats.json`). Files ending
+`_before_scoring_fix.json` hold the same games scored before a bankrupt company's leftover project value was
+removed from its final score (see the paper's audit-trail appendix).
 The test plan was written before training: `paper/PROTOCOL_v2.md`. A fresh clone can watch the agents play
 without training: when `runs/latest` does not exist, the code falls back to `results/v2/seed0`.
 Older results from the first version of the study (`results/policy`, `results/policy_seeds`, `results/multiseed.json`)

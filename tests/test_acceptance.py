@@ -172,3 +172,18 @@ def test_observation_uses_lagged_market(base_cfg):
     w.compute_price *= 2.0          # current (unpublished) price change must not leak
     after = build_observation(w, f, cand)
     assert np.array_equal(before, after)
+
+
+def test_bankrupt_firm_keeps_no_project_value(base_cfg):
+    """A bankrupt firm's final value is −debt: unfinished projects and products count for nothing."""
+    w = World(base_cfg, 5000)
+    rng = np.random.default_rng(5000)
+    seen = 0
+    while seen == 0:
+        r = w.step({f.firm_id: HEURISTICS["random"](w, f, rng) for f in w.alive_firms()})
+        for fid in r.terminated:
+            f = w.firms[fid]
+            assert w.net_worth(f) == pytest.approx(-f.debt)
+            assert f.cum_raw_reward == pytest.approx((-f.debt - base_cfg.builders.initial_cash) / 1000.0)
+            seen += 1
+        assert not r.done, "expected a random-policy firm to go bankrupt"

@@ -179,7 +179,10 @@ class World:
         return p.investment * w * max(0.0, min(1.0, remaining / 12.0))
 
     def net_worth(self, f: FirmState) -> float:
-        """Firm value: cash − debt + PV of live products + risk-weighted book value of projects in development."""
+        """Firm value: cash − debt + PV of live products + risk-weighted book value of projects in development.
+        A bankrupt firm's projects are worthless: its value is cash − debt (cash is liquidated, so −debt)."""
+        if not f.alive:
+            return self.cash(f) - f.debt
         return self.cash(f) - f.debt + sum(self.project_pv(p) for p in f.projects)
 
     def firm_pay(self, f: FirmState, dst: str, amount: float, memo: str) -> float:
