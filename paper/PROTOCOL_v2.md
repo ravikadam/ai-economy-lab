@@ -54,3 +54,24 @@ The test runs once, after all arms finish, on the markets listed above.
   remains the one that decides the success criterion.
 - **Provenance.** This file was first committed in `68bf412`, together with the results; its local creation time
   (01:19:37 IST) precedes the first training run (01:20:49 IST) but is not independent evidence.
+
+## Revision plan R1 (written 2026-10-22 before any of these runs; pushed to GitHub before they start)
+In response to review. Nothing below changes the original test or its results.
+
+1. **More comparison runs.** Train `config/train_v2_nodr.yaml` with seeds 3–4 and `config/train_v2_pure.yaml`
+   with seeds 1–4, unchanged, so each comparison arm has 5 runs. Test them exactly as the original runs (seeds
+   400–499 base, 400–449 per named condition). These markets were already used once to test other agents; no
+   agent or setting is tuned on them. Compare arms with the two-level bootstrap in `scripts/ci_v2.py` and report
+   the smallest difference detectable with 80% power at the 5% level.
+2. **Imitation-only baseline.** The imitation-trained starting network of each of the 5 full-recipe runs
+   (`checkpoints/bc_init.pt`, before any PPO update), with its action mode (sampled or greedy) chosen on the 40
+   practice markets exactly as for the trained agents, tested like item 1.
+3. **Strength of the yardstick.** On fresh markets 500–549 (base and compute crunch): the oracle rule (best expected
+   value given the true hidden difficulty), all four rules and the five agents, in the focal seat.
+4. **Sensitivity.** On fresh markets 500–549, base scenario, the five agents and best expected value with one
+   parameter changed at a time: competition discount 0.06 and 0.24 (base 0.12); monthly credit cost 0.006 and 0.024
+   (base 0.012); price share 0.24 and 0.40 (base 0.32); overhead 15 and 40 $k/month (base 25). Report the lead and
+   its two-level interval for each.
+5. **Crunch bankruptcies.** On fresh markets 500–549, compute crunch: per-month projects running, budget tier,
+   model choice, runway and debt for the agents and best expected value in the focal seat, comparing companies that
+   went bankrupt with those that survived.
