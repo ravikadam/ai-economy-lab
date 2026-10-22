@@ -75,3 +75,19 @@ In response to review. Nothing below changes the original test or its results.
 5. **Crunch bankruptcies.** On fresh markets 500–549, compute crunch: per-month projects running, budget tier,
    model choice, runway and debt for the agents and best expected value in the focal seat, comparing companies that
    went bankrupt with those that survived.
+
+## Revision plan R2 (written 2026-10-22 15:55 IST before running; pushed before the runs start)
+In response to a second review. Nothing below changes earlier results.
+
+1. **Robustness of the market findings.** On fresh markets 600–629, with the v2 seed-0 agent in the same mixed
+   population as the analysis markets (`scripts/experiments.py`), vary one structural parameter at a time, low and
+   high: adoption steepness 2 and 8 (base 4); competition discount 0.06 and 0.24 (0.12); entry base probability 0.02
+   and 0.08 (0.04); compute price ceiling 0.015 and 0.06 (0.03); confidence diffusion 0.15 and 0.6 (0.3); fab lead
+   time 12 and 24 months (18). Each variant runs in the base scenario and the compute crunch with the same change.
+   Report for each: S-curve shape (months to half of final adoption, and whether monthly new adoptions peak in the
+   middle of the decade), regulated-sector adoption relative to the others, the first launcher's share against an
+   even split, founding companies' value relative to entrants, and the crunch's compute-price peak and value
+   created relative to the matching base variant.
+2. **Multiple comparisons.** From the saved test results only: the success bar (five per-agent tests in normal
+   markets) is the single primary endpoint. For the 30 per-agent tests across six conditions, and the six pooled
+   five-agent tests, report how many leads stay clear after a Holm correction for the family-wise error rate.
