@@ -91,3 +91,32 @@ In response to a second review. Nothing below changes earlier results.
 2. **Multiple comparisons.** From the saved test results only: the success bar (five per-agent tests in normal
    markets) is the single primary endpoint. For the 30 per-agent tests across six conditions, and the six pooled
    five-agent tests, report how many leads stay clear after a Holm correction for the family-wise error rate.
+
+## Revision plan R3: PFAR (written 2026-10-22 before implementation; pushed before any PFAR run)
+**Method.** Paired-Fork Advantage against a Rule. During PPO training, at a sampled share (25%) of decisions
+where the learning company's action and the best-expected-value rule's action differ and are not both "hold",
+the worker copies the market twice. Copy A applies the agent's action, copy B the rule's action; every other
+company's action that month is identical. Both copies then run 12 months with all learning and frozen seats
+acting by the current policy (a sampling generator seeded identically in both copies) and all random streams
+shared (common random numbers). The fork advantage is
+  A = sum_{k<12} 0.99^k (r^A_k - r^B_k)/s + 0.99^12 (V(s^A_12) - V(s^B_12)),
+with shaped rewards r, the running reward scale s, the current value function V, and no bootstrap after
+bankruptcy. It replaces the GAE advantage for that sample. Q(s, rule(s)) does not depend on the agent's action,
+so it is a valid baseline. Everything else is identical to `config/train_v2.yaml` (and `train_v2_pure.yaml`).
+
+**Arms.** PFAR with imitation start (seeds 0-4) and PFAR from scratch (seeds 0-4), compared with the existing
+full-recipe runs (v2, seeds 0-4) and no-imitation runs (v2pure, seeds 0-4). Same practice-market selection.
+
+**Test (once, after all PFAR runs finish).** Fresh markets 700-799 (base) and 700-749 for each named condition;
+all 20 agents and the rules in the focal seat; sampled agents averaged over 3 plays.
+
+**Hypotheses (decided now).**
+- P1: PFAR's five-agent lead over the rule in normal markets exceeds v2's; supported if the two-level bootstrap
+  interval of (PFAR - v2) lies above zero.
+- P2: PFAR's average survival in the compute crunch exceeds v2's; supported if the interval of the difference lies
+  above zero.
+- P3: PFAR from scratch succeeds (clearly better than the rule in normal markets) in at least 4 of 5 runs, against
+  3 of 5 for v2pure.
+- Diagnostic D: on 200 sampled decisions from markets 800-819, the variance of the fork-advantage estimate with
+  shared randomness versus independent randomness in the two copies (8 repeats each). Reported whatever it shows.
+Negative or null results will be reported as such.
