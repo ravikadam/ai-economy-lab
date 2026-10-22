@@ -43,7 +43,7 @@ def save(fig, name):
 
 
 def fig_pure_rl():
-    rows = [r for r in jl(RES / "control_pure/metrics.jsonl") if "policy_raw_return" in r]
+    rows = [r for r in jl(RES / "control_pure_seed0/metrics.jsonl") if "policy_raw_return" in r]
     k = [r["env_steps"] / 1000 for r in rows]
     fig, (a, b) = plt.subplots(1, 2, figsize=(W, 2.4))
     a.plot(k, [r["policy_raw_return"] for r in rows], color=GREY, lw=1.6)
@@ -162,9 +162,9 @@ def fig_test():
 
 def fig_controls():
     t = json.load(open(RES / "test.json"))["scenarios"]
-    arms = [("v2-seed", "all fixes (5 training runs)", ACC), ("v2nodr-seed", "without varied markets (3 runs)", GREY),
-            ("v2pure-seed", "without imitation (1 run)", "#c5221f")]
-    fig, ax = plt.subplots(figsize=(W, 3.3))
+    arms = [("v2-seed", "all fixes", ACC), ("v2nodr-seed", "no varied markets", GREY),
+            ("v2pure-seed", "no imitation", "#c5221f"), ("v2bc-seed", "imitation only, no RL", "#f2a900")]
+    fig, ax = plt.subplots(figsize=(W, 3.8))
     for i, (sc, lab) in enumerate(REGIMES):
         y = len(REGIMES) - 1 - i
         for j, (pre, name, c) in enumerate(arms):
@@ -172,12 +172,13 @@ def fig_controls():
             if not ds:
                 continue
             m = sum(ds) / len(ds)
-            ax.barh(y + (1 - j) * 0.26, m, height=0.24, color=c, label=name if i == 0 else None)
-            ax.scatter(ds, [y + (1 - j) * 0.26] * len(ds), color=DARK, s=5, zorder=3)
+            yy = y + (1.5 - j) * 0.2
+            ax.barh(yy, m, height=0.18, color=c, label=f"{name} ({len(ds)} runs)" if i == 0 else None)
+            ax.scatter(ds, [yy] * len(ds), color=DARK, s=4, zorder=3)
     ax.axvline(0, color=REF, lw=1)
     ax.set_yticks(range(len(REGIMES)), [l for _, l in REGIMES][::-1])
     ax.set_xlabel("learning agent minus best rule ($M per company); bars: average, dots: individual training runs")
-    ax.legend(loc="lower center", bbox_to_anchor=(0.45, 1.0), ncol=3, frameon=False, fontsize=7.5)
+    ax.legend(loc="lower center", bbox_to_anchor=(0.45, 1.0), ncol=4, frameon=False, fontsize=7)
     ax.grid(axis="y", visible=False)
     fig.tight_layout()
     save(fig, "fig_controls")

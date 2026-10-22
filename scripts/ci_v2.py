@@ -10,9 +10,9 @@ the same market.
                         not independent. "markets" resamples markets only (agents fixed); "agents_and_markets"
                         resamples the five training runs and the markets (two-level bootstrap), which also counts
                         run-to-run luck.
-* arms               -- comparison runs minus the matching full-recipe runs (training seeds 0-2 for the arm
-                        without varied markets, seed 0 for the arm without imitation), paired by market; resamples
-                        markets and, where an arm has several runs, runs within each arm.
+* arms               -- comparison runs (no varied markets, no imitation, imitation only) minus the full-recipe runs
+                        with the same training seeds, paired by market; resamples markets and runs within each arm.
+                        min_detectable_diff_80pct_power = (1.96 + 0.84) x bootstrap standard error of that difference.
 """
 from __future__ import annotations
 
@@ -52,16 +52,28 @@ def main():
         res["pooled"]["agents_and_markets"] = pct(np.array([v2[ag[b]][:, idx[b]].mean() for b in range(B)]))
         c = np.corrcoef(v2)
         res["pooled"]["mean_pairwise_correlation"] = float(c[np.triu_indices(len(v2), 1)].mean())
-        for arm, pre, seeds in (("no_varied_markets", "v2nodr-seed", (0, 1, 2)), ("no_imitation", "v2pure-seed", (0,))):
-            a = np.stack([runs[k] for k in sorted(runs) if k.startswith(pre)])
+        for arm, pre in (("no_varied_markets", "v2nodr-seed"), ("no_imitation", "v2pure-seed"),
+                         ("imitation_only", "v2bc-seed")):
+            keys = [k for k in sorted(runs) if k.startswith(pre)]
+            if not keys:
+                continue
+            seeds = sorted({int(k[len(pre):].split("-")[0]) for k in keys})
+            a = np.stack([runs[k] for k in keys])
             f = np.stack([runs[k] for k in sorted(runs) if any(k.startswith(f"v2-seed{s}-") for s in seeds)])
-            diff = []
+            diff, lead = [], []
             for b in range(B):
                 ia = rng.integers(0, len(a), len(a))
                 jf = rng.integers(0, len(f), len(f))
                 diff.append(a[ia][:, idx[b]].mean() - f[jf][:, idx[b]].mean())
+                lead.append(a[ia][:, idx[b]].mean())
+            # smallest true difference detectable with 80% power at the 5% level (two-sided), from the bootstrap SE
+            mde = float((1.959964 + 0.841621) * np.std(diff, ddof=1))
             res["arms"][arm] = {"mean_diff": float(a.mean() - f.mean()), "interval": pct(diff),
-                                "arm_runs": len(a), "matched_full_runs": len(f)}
+                                "lead_vs_rule": float(a.mean()), "lead_interval": pct(lead),
+                                "min_detectable_diff_80pct_power": mde,
+                                "arm_runs": len(a), "matched_full_runs": len(f),
+                                "n_clearly_better": int(sum(res["per_agent"][k.split("-2026")[0]]["normal"][0] > 0
+                                                           for k in keys))}
         out["scenarios"][sc] = res
         print(f"== {sc}: pooled {res['pooled']['mean']:+.2f} markets {np.round(res['pooled']['markets'], 2)} "
               f"agents+markets {np.round(res['pooled']['agents_and_markets'], 2)} "
@@ -69,7 +81,9 @@ def main():
         for k, v in res["per_agent"].items():
             print(f"   {k:14s} {v['mean']:+.2f} normal {np.round(v['normal'], 2)} boot {np.round(v['boot'], 2)}")
         for k, v in res["arms"].items():
-            print(f"   arm {k:18s} {v['mean_diff']:+.2f} {np.round(v['interval'], 2)}")
+            print(f"   arm {k:18s} lead {v['lead_vs_rule']:+.2f} {np.round(v['lead_interval'], 2)} | vs full "
+                  f"{v['mean_diff']:+.2f} {np.round(v['interval'], 2)} MDE80 {v['min_detectable_diff_80pct_power']:.2f} "
+                  f"({v['arm_runs']} runs, {v['n_clearly_better']} clearly better)")
     Path("results/v2/intervals.json").write_text(json.dumps(out, indent=2))
     print("-> results/v2/intervals.json")
 
