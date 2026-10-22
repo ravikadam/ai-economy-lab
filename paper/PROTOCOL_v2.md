@@ -120,3 +120,9 @@ all 20 agents and the rules in the focal seat; sampled agents averaged over 3 pl
 - Diagnostic D: on 200 sampled decisions from markets 800-819, the variance of the fork-advantage estimate with
   shared randomness versus independent randomness in the two copies (8 repeats each). Reported whatever it shows.
 Negative or null results will be reported as such.
+
+### R3 amendment A1 (2026-10-22, after a 10k-step smoke test, before any PFAR run)
+The smoke test showed an untrained policy disagrees with the rule at most decisions (about 850 forks per update,
+training about 10x slower). The fork probability is therefore capped so that each world forks about 4 decisions
+per update: p = min(0.25, 4 / disagreeing decisions in that world in the previous update), applied evenly over the
+rollout. Everything else in R3 is unchanged.

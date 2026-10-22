@@ -69,6 +69,10 @@ class TrainConfig(BaseModel):
     ent_coef_max: float = 0.05
     dev_eval: bool = False                  # select checkpoints on the 40-market dev set (training/dev_eval.py)
     dev_workers: int = 6
+    pfar: bool = False                      # Paired-Fork Advantage against a Rule (training/pfar.py)
+    pfar_prob: float = 0.25                 # share of disagreeing decisions that are forked
+    pfar_horizon: int = 12                  # months each copy runs before bootstrapping with V
+    pfar_budget: float = 4.0                # target forks per world per update (caps the fork probability)
 
 
 def pick_device(name: str) -> str:
@@ -193,7 +197,10 @@ def main(argv=None):
     gen = torch.Generator(device=rdev); gen.manual_seed(tc.seed)
 
     mix = dict(tc.controller_mix)
-    vec = SubprocWorlds(cfg, mix, tc.num_workers, tc.worlds_per_worker, tc.train_seed_base, tc.randomize)
+    pfar_cfg = ({"prob": tc.pfar_prob, "budget": tc.pfar_budget, "horizon": tc.pfar_horizon, "gamma": tc.gamma,
+                 "hidden": tc.hidden,
+                 "emb": tc.emb} if tc.pfar else None)
+    vec = SubprocWorlds(cfg, mix, tc.num_workers, tc.worlds_per_worker, tc.train_seed_base, tc.randomize, pfar_cfg)
     dev = None
     if tc.dev_eval:
         from training.dev_eval import DevEvaluator
@@ -222,7 +229,11 @@ def main(argv=None):
                    "tier_mask": np.zeros((T, W, S, V, Ti), bool), "actions": np.zeros((T, W, S, 6), np.int64),
                    "logp": np.zeros((T, W, S), np.float32), "values": np.zeros((T, W, S), np.float32),
                    "rew": np.zeros((T, W, S), np.float32), "done": np.zeros((T, W, S), bool),
-                   "valid": np.zeros((T, W, S), bool)}
+                   "valid": np.zeros((T, W, S), bool),
+                   "fork_adv": np.zeros((T, W, S), np.float32), "forked": np.zeros((T, W, S), bool)}
+            if tc.pfar:
+                vec.set_weights({k: v.detach().cpu() for k, v in net.state_dict().items()}, rstd.std)
+            fork_stats = {"n": 0, "pos": 0, "bank_agent": 0, "bank_rule": 0, "abs": 0.0}
             raw_sum = 0.0
             t_inf = t_env = 0.0
             for step in range(T):
@@ -252,6 +263,14 @@ def main(argv=None):
                         actions[wi[k]][int(si[k])] = tuple(int(x) for x in a[k])
                 t1 = time.time()
                 raw, shaped, done, episodes, batch = vec.step(actions)
+                for wi_, forks in enumerate(vec.last_forks):
+                    for s_, adv_, ba_, br_ in forks:
+                        if buf["valid"][step, wi_, s_]:
+                            buf["fork_adv"][step, wi_, s_] = adv_
+                            buf["forked"][step, wi_, s_] = True
+                            fork_stats["n"] += 1; fork_stats["pos"] += adv_ > 0
+                            fork_stats["bank_agent"] += ba_; fork_stats["bank_rule"] += br_
+                            fork_stats["abs"] += abs(adv_)
                 t_env += time.time() - t1
                 t_inf += t1 - t0
                 rstd.update(shaped, done, valid)
@@ -279,7 +298,9 @@ def main(argv=None):
                 gae = delta + tc.gamma * tc.gae_lambda * nonterm * gae
                 gae = np.where(buf["valid"][t], gae, 0.0)
                 adv[t] = gae
-            returns = adv + buf["values"]
+            returns = adv + buf["values"]          # value targets stay on GAE returns
+            if tc.pfar:                              # PFAR: the fork advantage replaces GAE where a fork was run
+                adv = np.where(buf["forked"], buf["fork_adv"], adv)
             m = buf["valid"]
             data = {"obs": buf["obs"][m], "verb_mask": buf["verb_mask"][m], "cand_mask": buf["cand_mask"][m],
                     "slot_mask": buf["slot_mask"][m], "tier_mask": buf["tier_mask"][m], "actions": buf["actions"][m],
@@ -305,6 +326,11 @@ def main(argv=None):
             rec = {"iter": it, "env_steps": env_steps, "samples": int(m.sum()), "time": time.time() - t_start,
                    "fps": W * T / (time.time() - t_it), "t_env": t_env, "t_inference": t_inf, "t_update": t_up,
                    "device": device, "rollout_raw_reward_sum": raw_sum, **stats}
+            if tc.pfar:
+                n_ = max(1, fork_stats["n"])
+                rec.update({"forks": fork_stats["n"], "fork_share_agent_better": fork_stats["pos"] / n_,
+                            "fork_mean_abs_adv": fork_stats["abs"] / n_, "fork_bankrupt_agent": fork_stats["bank_agent"],
+                            "fork_bankrupt_rule": fork_stats["bank_rule"]})
             if pol_eps:
                 rec["policy_raw_return"] = float(np.mean([e["raw_return"] for e in pol_eps]))
                 rec["policy_shaped_return"] = float(np.mean([e["shaped_return"] for e in pol_eps]))
@@ -344,6 +370,8 @@ def main(argv=None):
                    f"heur_R={rec.get('heuristic_raw_return', float('nan')):7.2f} "
                    f"surv={rec.get('policy_survival', float('nan')):.2f} ent={stats['entropy']:.2f} "
                    f"kl={stats['approx_kl']:.3f} env={t_env:.1f}s inf={t_inf:.1f}s upd={t_up:.1f}s")
+            if tc.pfar:
+                msg += f" forks={fork_stats['n']} better={rec['fork_share_agent_better']:.2f}"
             if "eval_raw_return" in rec:
                 msg += f" | eval_R={rec['eval_raw_return']:.2f} best={best_eval:.2f}"
                 if "dev" in rec:

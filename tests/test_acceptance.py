@@ -187,3 +187,42 @@ def test_bankrupt_firm_keeps_no_project_value(base_cfg):
             assert f.cum_raw_reward == pytest.approx((-f.debt - base_cfg.builders.initial_cash) / 1000.0)
             seen += 1
         assert not r.done, "expected a random-policy firm to go bankrupt"
+
+
+def _bg_env(cfg, seed):
+    from training.evaluate import BACKGROUND, ENTRANT_MIX
+    env = MultiFirmEnv(cfg, ENTRANT_MIX, fixed_controllers={0: "heuristic:best_npv", **BACKGROUND}, min_policy_seats=0)
+    env.reset(seed)
+    return env
+
+
+def test_forked_copy_is_identical(base_cfg):
+    """PFAR forks: a deep copy given the same actions follows exactly the same history (shared random streams)."""
+    import copy
+    env = _bg_env(base_cfg, 9001)
+    for _ in range(30):
+        env.step({})
+    twin = copy.deepcopy(env)
+    for _ in range(40):
+        env.step({})
+        twin.step({})
+    assert env.world.state_hash() == twin.world.state_hash()
+
+
+def test_forking_does_not_disturb_the_real_game(base_cfg):
+    """Running a PFAR fork (agent vs rule copies) before a step leaves the real trajectory unchanged."""
+    from agents.actions import encode
+    from training.checkpoints import build_net
+    from training.pfar import fork_advantage, rule_action
+    net = build_net(base_cfg).eval()
+    plain, forked = _bg_env(base_cfg, 9002), _bg_env(base_cfg, 9002)
+    for m in range(36):
+        if m % 6 == 0:
+            rule = rule_action(forked, 0, np.random.default_rng(m))
+            idx = encode(Action(), forked.candidates(0), 0)
+            fk = fork_advantage(forked, 0, {0: idx}, rule, net, gen_seed=m, horizon=6)
+            assert np.isfinite(fk["adv"])
+            plain.step({0: idx}); forked.step({0: idx})
+        else:
+            plain.step({}); forked.step({})
+    assert plain.world.state_hash() == forked.world.state_hash()

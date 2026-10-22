@@ -52,7 +52,7 @@ def _episode_stats(env) -> list[dict]:
     return out
 
 
-def _worker(remote, cfg_dict, mix, n_worlds, seed_base, worker_idx, randomize=0.0):
+def _worker(remote, cfg_dict, mix, n_worlds, seed_base, worker_idx, randomize=0.0, pfar=None):
     from economy.config import ScenarioConfig
     from envs.multi_env import MultiFirmEnv
     from training.randomize import config_for_seed
@@ -60,6 +60,19 @@ def _worker(remote, cfg_dict, mix, n_worlds, seed_base, worker_idx, randomize=0.
         cfg = ScenarioConfig.model_validate(cfg_dict)
         envs = [MultiFirmEnv(cfg, mix, min_policy_seats=1) for _ in range(n_worlds)]
         episode = [0] * n_worlds
+        net, scale = None, 1.0
+        if pfar:   # PFAR: a CPU copy of the policy for the forked continuations, refreshed every iteration
+            import torch
+            torch.set_num_threads(1)
+            from training.checkpoints import build_net
+            from training.pfar import disagrees, fork_advantage, rule_action
+            net = build_net(cfg, pfar["hidden"], pfar["emb"]).eval()
+            pf_rng = np.random.default_rng([seed_base, worker_idx, 7])
+            n_fork = 0
+            # fork budget: about pfar["budget"] forks per world per update, spread evenly over the rollout by
+            # setting the fork probability from last update's count of disagreeing decisions
+            disagree_prev = [0.0] * n_worlds      # estimated disagreeing decisions per world, previous update
+            disagree_now = [0.0] * n_worlds
 
         def seed_for(j):
             s = seed_base + (worker_idx * n_worlds + j) * 100_000 + episode[j]
@@ -74,11 +87,36 @@ def _worker(remote, cfg_dict, mix, n_worlds, seed_base, worker_idx, randomize=0.
             if cmd == "reset":
                 batches = [e.reset(seed_for(j)) for j, e in enumerate(envs)]
                 remote.send(batches)
+            elif cmd == "weights":
+                net.load_state_dict(data["state_dict"])
+                scale = float(data["scale"])
+                disagree_prev, disagree_now = disagree_now, [0.0] * n_worlds
+                remote.send(True)
             elif cmd == "step":
                 outs = []
                 for j, e in enumerate(envs):
+                    forks = []
+                    if net is not None:
+                        # every disagreeing decision is forked with probability p_fork; the rule's action is only
+                        # computed for a random share q >= p_fork of decisions (then forked with p_fork / q)
+                        p_fork = min(pfar["prob"], pfar["budget"] / max(1.0, disagree_prev[j]))
+                        q = min(1.0, 2.0 * p_fork)
+                        for s, a in data[j].items():
+                            if e.seat_ctrl[s] != "policy" or pf_rng.random() >= q:
+                                continue
+                            rule = rule_action(e, s, np.random.default_rng([int(e.world.month), int(s), 11]))
+                            if not disagrees(e, s, a, rule):
+                                continue
+                            disagree_now[j] += 1.0 / q
+                            if pf_rng.random() >= p_fork / q:
+                                continue
+                            n_fork += 1
+                            fk = fork_advantage(e, s, data[j], rule, net, gen_seed=int(pf_rng.integers(1 << 31)),
+                                                horizon=pfar["horizon"], gamma=pfar["gamma"], scale=scale)
+                            forks.append((s, fk["adv"], fk["bankrupt_agent"], fk["bankrupt_rule"]))
                     o = e.step(data[j])
-                    rec = {"raw": o["raw"], "shaped": o["shaped"], "done": o["done"], "episode": None}
+                    rec = {"raw": o["raw"], "shaped": o["shaped"], "done": o["done"], "episode": None,
+                           "forks": forks}
                     if o["episode_done"]:
                         rec["episode"] = _episode_stats(e)
                         episode[j] += 1
@@ -96,14 +134,14 @@ def _worker(remote, cfg_dict, mix, n_worlds, seed_base, worker_idx, randomize=0.
 
 class SubprocWorlds:
     def __init__(self, cfg, mix: dict, num_workers: int, worlds_per_worker: int, seed_base: int,
-                 randomize: float = 0.0):
+                 randomize: float = 0.0, pfar: dict | None = None):
         ctx = mp.get_context("spawn")
         self.n = num_workers * worlds_per_worker
         self.per = worlds_per_worker
         self.remotes, self.procs = [], []
         for w in range(num_workers):
             a, b = ctx.Pipe()
-            p = ctx.Process(target=_worker, args=(b, cfg.model_dump(), mix, worlds_per_worker, seed_base, w, randomize),
+            p = ctx.Process(target=_worker, args=(b, cfg.model_dump(), mix, worlds_per_worker, seed_base, w, randomize, pfar),
                             daemon=True)
             p.start()
             self.remotes.append(a)
@@ -121,6 +159,12 @@ class SubprocWorlds:
         batches = [b for r in self.remotes for b in self._recv(r)]
         return _stack(batches)
 
+    def set_weights(self, state_dict: dict, scale: float) -> None:
+        for r in self.remotes:
+            r.send(("weights", {"state_dict": state_dict, "scale": scale}))
+        for r in self.remotes:
+            self._recv(r)
+
     def step(self, actions: list[dict]):
         for i, r in enumerate(self.remotes):
             r.send(("step", actions[i * self.per:(i + 1) * self.per]))
@@ -133,6 +177,7 @@ class SubprocWorlds:
         shaped = np.stack([o["shaped"] for o in outs])
         done = np.stack([o["done"] for o in outs])
         episodes = [o["episode"] for o in outs if o["episode"] is not None]
+        self.last_forks = [o.get("forks", []) for o in outs]     # per world: (seat, adv, bankrupt_agent, bankrupt_rule)
         return raw, shaped, done, episodes, _stack(batches)
 
     def close(self):

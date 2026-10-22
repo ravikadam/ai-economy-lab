@@ -1,0 +1,35 @@
+# PFAR from scratch (plan R3): identical to train_v2_pure.yaml plus Paired-Fork Advantage against a Rule.
+# Fixed before any PFAR run.
+scenario: config/base.yaml
+run_name: pfarpure
+total_env_steps: 1000000
+num_workers: 6
+worlds_per_worker: 4
+rollout_len: 60
+gamma: 0.99
+gae_lambda: 0.95
+lr: 0.0001
+epochs: 4
+minibatch: 4096
+ent_coef: 0.01
+entropy_floor: 0.25
+ent_coef_max: 0.05
+device: auto
+rollout_device: cpu
+controller_mix: {policy: 0.5, "heuristic:best_npv": 0.15, "heuristic:easy_first": 0.1, "heuristic:cash_preserving": 0.1, "heuristic:random": 0.05, frozen: 0.1}
+frozen_snapshot_every: 10
+frozen_pool_size: 10
+checkpoint_every: 100000
+eval_every: 20
+dev_eval: true
+dev_workers: 6
+patience: 8
+randomize: 0.75
+bc_teacher: null           # control: no imitation warm start (pure PPO)
+bc_episodes: 96
+bc_epochs: 6
+value_warmup_iters: 3
+pfar: true
+pfar_prob: 0.25
+pfar_horizon: 12
+pfar_budget: 4.0
