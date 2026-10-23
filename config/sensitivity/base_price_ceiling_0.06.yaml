@@ -1,0 +1,4 @@
+compute_price:
+  ceiling: 0.06
+extends: ../base.yaml
+name: base_price_ceiling_0.06

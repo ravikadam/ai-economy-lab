@@ -1,4 +1,4 @@
-\begin{thebibliography}{27}
+\begin{thebibliography}{38}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -13,10 +13,24 @@ Rishabh Agarwal, Max Schwarzer, Pablo~Samuel Castro, Aaron Courville, and
 \newblock In \emph{Advances in Neural Information Processing Systems
   (NeurIPS)}, volume~34, 2021.
 
+\bibitem[Amrouni et~al.(2021)Amrouni, Moulin, Vann, Vyetrenko, Balch, and
+  Veloso]{amrouni2021abidesgym}
+Selim Amrouni, Aymeric Moulin, Jared Vann, Svitlana Vyetrenko, Tucker Balch,
+  and Manuela Veloso.
+\newblock {ABIDES-Gym}: Gym environments for multi-agent discrete event
+  simulation and application to financial markets.
+\newblock In \emph{Proceedings of the ACM International Conference on AI in
+  Finance (ICAIF)}, 2021.
+
 \bibitem[Bass(1969)]{bass1969diffusion}
 Frank~M. Bass.
 \newblock A new product growth for model consumer durables.
 \newblock \emph{Management Science}, 15\penalty0 (5):\penalty0 215--227, 1969.
+
+\bibitem[Byrd et~al.(2019)Byrd, Hybinette, and Balch]{byrd2019abides}
+David Byrd, Maria Hybinette, and Tucker Balch.
+\newblock {ABIDES}: Towards high-fidelity market simulation for {AI} research.
+\newblock \emph{arXiv preprint arXiv:1904.12066}, 2019.
 
 \bibitem[Calvano et~al.(2020)Calvano, Calzolari, Denicol{\`o}, and
   Pastorello]{calvano2020collusion}
@@ -25,6 +39,13 @@ Emilio Calvano, Giacomo Calzolari, Vincenzo Denicol{\`o}, and Sergio
 \newblock Artificial intelligence, algorithmic pricing, and collusion.
 \newblock \emph{American Economic Review}, 110\penalty0 (10):\penalty0
   3267--3297, 2020.
+
+\bibitem[Cheridito et~al.(2025)Cheridito, Dupret, and
+  Wu]{cheridito2025abidesmarl}
+Patrick Cheridito, Jean-Loup Dupret, and Zhexin Wu.
+\newblock {ABIDES-MARL}: A multi-agent reinforcement learning environment for
+  optimal execution with endogenous liquidity.
+\newblock \emph{arXiv preprint arXiv:2511.02016}, 2025.
 
 \bibitem[Cobbe et~al.(2019)Cobbe, Klimov, Hesse, Kim, and
   Schulman]{cobbe2019generalization}
@@ -45,6 +66,14 @@ J.~Doyne Farmer and Duncan Foley.
 \newblock The economy needs agent-based modelling.
 \newblock \emph{Nature}, 460:\penalty0 685--686, 2009.
 
+\bibitem[Foerster et~al.(2018)Foerster, Farquhar, Afouras, Nardelli, and
+  Whiteson]{foerster2018coma}
+Jakob~N. Foerster, Gregory Farquhar, Triantafyllos Afouras, Nantas Nardelli,
+  and Shimon Whiteson.
+\newblock Counterfactual multi-agent policy gradients.
+\newblock In \emph{Proceedings of the AAAI Conference on Artificial
+  Intelligence}, 2018.
+
 \bibitem[Henderson et~al.(2018)Henderson, Islam, Bachman, Pineau, Precup, and
   Meger]{henderson2018matters}
 Peter Henderson, Riashat Islam, Philip Bachman, Joelle Pineau, Doina Precup,
@@ -52,6 +81,12 @@ Peter Henderson, Riashat Islam, Philip Bachman, Joelle Pineau, Doina Precup,
 \newblock Deep reinforcement learning that matters.
 \newblock In \emph{Proceedings of the AAAI Conference on Artificial
   Intelligence}, 2018.
+
+\bibitem[Holm(1979)]{holm1979}
+Sture Holm.
+\newblock A simple sequentially rejective multiple test procedure.
+\newblock \emph{Scandinavian Journal of Statistics}, 6\penalty0 (2):\penalty0
+  65--70, 1979.
 
 \bibitem[Huang and Onta{\~n}{\'o}n(2022)]{huang2022masking}
 Shengyi Huang and Santiago Onta{\~n}{\'o}n.
@@ -65,11 +100,23 @@ Hau~L. Lee, V.~Padmanabhan, and Seungjin Whang.
 \newblock Information distortion in a supply chain: The bullwhip effect.
 \newblock \emph{Management Science}, 43\penalty0 (4):\penalty0 546--558, 1997.
 
+\bibitem[Li et~al.(2026)Li, Wang, Chen, Cao, and Tang]{li2026crr}
+Yuanhao Li, Hongbo Wang, Xuhong Chen, Yiming Cao, and Xunzhu Tang.
+\newblock Counterfactual rollout replay: Forkable environments as free process
+  rewards for software engineering agents.
+\newblock \emph{arXiv preprint arXiv:2609.33875}, 2026.
+
 \bibitem[Lieberman and Montgomery(1988)]{lieberman1988firstmover}
 Marvin~B. Lieberman and David~B. Montgomery.
 \newblock First-mover advantages.
 \newblock \emph{Strategic Management Journal}, 9\penalty0 (S1):\penalty0
   41--58, 1988.
+
+\bibitem[Ng and Jordan(2000)]{ng2000pegasus}
+Andrew~Y. Ng and Michael~I. Jordan.
+\newblock {PEGASUS}: A policy search method for large {MDPs} and {POMDPs}.
+\newblock In \emph{Proceedings of the Conference on Uncertainty in Artificial
+  Intelligence (UAI)}, 2000.
 
 \bibitem[Ng et~al.(1999)Ng, Harada, and Russell]{ng1999shaping}
 Andrew~Y. Ng, Daishi Harada, and Stuart Russell.
@@ -103,6 +150,20 @@ St{\'e}phane Ross, Geoffrey~J. Gordon, and J.~Andrew Bagnell.
 \newblock In \emph{Proceedings of the International Conference on Artificial
   Intelligence and Statistics (AISTATS)}, 2011.
 
+\bibitem[Sakib(2026)]{sakib2026luck}
+Nazmus Sakib.
+\newblock Luck is not skill: When do paired rollouts help group-relative {RL}
+  of {LLM} agents?
+\newblock \emph{arXiv preprint arXiv:2609.24144}, 2026.
+
+\bibitem[Schulman et~al.(2015)Schulman, Levine, Abbeel, Jordan, and
+  Moritz]{schulman2015trpo}
+John Schulman, Sergey Levine, Pieter Abbeel, Michael Jordan, and Philipp
+  Moritz.
+\newblock Trust region policy optimization.
+\newblock In \emph{Proceedings of the International Conference on Machine
+  Learning (ICML)}, 2015.
+
 \bibitem[Schulman et~al.(2016)Schulman, Moritz, Levine, Jordan, and
   Abbeel]{schulman2016gae}
 John Schulman, Philipp Moritz, Sergey Levine, Michael Jordan, and Pieter
@@ -117,6 +178,12 @@ John Schulman, Philipp Moritz, Sergey Levine, Michael Jordan, and Pieter
 John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov.
 \newblock Proximal policy optimization algorithms.
 \newblock \emph{arXiv preprint arXiv:1707.06347}, 2017.
+
+\bibitem[Seredy{\'n}ski and Tsaousoglou(2026)]{seredynski2026electricity}
+Jakub Seredy{\'n}ski and Georgios Tsaousoglou.
+\newblock {AI} agents in algorithmic electricity markets: On the emergence of
+  tacit collusion.
+\newblock \emph{arXiv preprint arXiv:2608.26896}, 2026.
 
 \bibitem[Silver et~al.(2016)Silver, Huang, Maddison, et~al.]{silver2016alphago}
 David Silver, Aja Huang, Chris~J. Maddison, et~al.
@@ -169,6 +236,15 @@ Oriol Vinyals, Igor Babuschkin, Wojciech~M. Czarnecki, et~al.
 \newblock Grandmaster level in {StarCraft II} using multi-agent reinforcement
   learning.
 \newblock \emph{Nature}, 575:\penalty0 350--354, 2019.
+
+\bibitem[Yadav et~al.(2026)Yadav, Maliakkal, Khadilkar, and
+  Kalyanakrishnan]{yadav2026crn}
+Sandarbh Yadav, Frederic~J. Maliakkal, Harshad Khadilkar, and Shivaram
+  Kalyanakrishnan.
+\newblock Using common random numbers for simulation-based planning with
+  rollouts.
+\newblock \emph{Reinforcement Learning Journal}, 2026.
+\newblock arXiv:2605.04732.
 
 \bibitem[Yu et~al.(2022)Yu, Velu, Vinitsky, Gao, Wang, Bayen, and
   Wu]{yu2022mappo}

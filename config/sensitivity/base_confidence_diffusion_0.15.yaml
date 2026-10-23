@@ -1,0 +1,4 @@
+demand:
+  confidence_diffusion: 0.15
+extends: ../base.yaml
+name: base_confidence_diffusion_0.15

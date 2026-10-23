@@ -23,8 +23,17 @@ for _n in ["compute_crunch", "entrant_wave", "fast_tech", "slow_tech", "harsh_fa
     SCENARIOS[_n] = (f"config/scenarios/{_n}.yaml", range(400, 450))
 
 
+def _set_seeds(base_lo, cond_lo):
+    """Point the test at a different block of markets (base: 100 seeds, conditions: 50 seeds each)."""
+    SCENARIOS["base"] = (SCENARIOS["base"][0], range(base_lo, base_lo + 100))
+    for k in SCENARIOS:
+        if k != "base":
+            SCENARIOS[k] = (SCENARIOS[k][0], range(cond_lo, cond_lo + 50))
+
+
 def _job(args):
-    run, scen, seed = args
+    run, scen, seed, base_lo = args
+    _set_seeds(base_lo, base_lo)
     import torch
     torch.set_num_threads(1)
     from agents.runner import PolicyRunner
@@ -53,9 +62,12 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--runs", nargs="+", required=True)
     ap.add_argument("--workers", type=int, default=6)
+    ap.add_argument("--first-seed", type=int, default=400, help="first market seed (400 = original test)")
+    ap.add_argument("--out", default="results/v2/test.json")
     a = ap.parse_args()
+    _set_seeds(a.first_seed, a.first_seed)
     runs = [r for pat in a.runs for r in sorted(glob.glob(pat)) if (Path(r) / "best.pt").exists()]
-    jobs = [(r, sc, s) for sc, (_, seeds) in SCENARIOS.items() for s in seeds for r in runs + ["best_npv"]]
+    jobs = [(r, sc, s, a.first_seed) for sc, (_, seeds) in SCENARIOS.items() for s in seeds for r in runs + ["best_npv"]]
     t0 = time.time()
     with mp.get_context("spawn").Pool(a.workers) as pool:
         out = pool.map(_job, jobs, chunksize=4)
@@ -86,7 +98,8 @@ def main():
             "diff_min": float(diffs.min()), "diff_max": float(diffs.max()),
             "n_better": int(sum(p["better"] for p in per)), "n_worse": int(sum(p["worse"] for p in per))}
     Path("results/v2").mkdir(parents=True, exist_ok=True)
-    Path("results/v2/test.json").write_text(json.dumps(res, indent=2))
+    res["first_seed"] = a.first_seed
+    Path(a.out).write_text(json.dumps(res, indent=2))
     for sc, r in res["scenarios"].items():
         print(f"== {sc} ({r['n_markets']} markets): rule {r['rule_mean']:.2f} $M, survival {r['rule_survival']:.0%}")
         for p in r["runs"]:
@@ -95,7 +108,7 @@ def main():
                   f"survival {p['survival']:.0%}")
         print(f"  mean diff {r['diff_mean']:+.2f} (range {r['diff_min']:+.2f} to {r['diff_max']:+.2f}); "
               f"{r['n_better']} better, {r['n_worse']} worse")
-    print(f"[test_v2] {time.time() - t0:.0f}s -> results/v2/test.json")
+    print(f"[test_v2] {time.time() - t0:.0f}s -> {a.out}")
 
 
 if __name__ == "__main__":

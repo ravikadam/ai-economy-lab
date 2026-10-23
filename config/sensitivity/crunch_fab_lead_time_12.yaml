@@ -1,0 +1,4 @@
+extends: ../scenarios/compute_crunch.yaml
+fab:
+  capex_lead_time: 12
+name: crunch_fab_lead_time_12

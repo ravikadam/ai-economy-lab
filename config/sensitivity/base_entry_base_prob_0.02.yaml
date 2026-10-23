@@ -1,0 +1,4 @@
+builders:
+  entry_base_prob: 0.02
+extends: ../base.yaml
+name: base_entry_base_prob_0.02

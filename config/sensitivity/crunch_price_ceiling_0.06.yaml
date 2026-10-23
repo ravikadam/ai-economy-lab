@@ -1,0 +1,4 @@
+compute_price:
+  ceiling: 0.06
+extends: ../scenarios/compute_crunch.yaml
+name: crunch_price_ceiling_0.06

@@ -184,6 +184,29 @@ def fig_controls():
     save(fig, "fig_controls")
 
 
+def fig_pfar():
+    t = json.load(open(RES / "test_pfar.json"))["scenarios"]
+    arms = [("v2-seed", "PPO, imitation start", GREY), ("pfar-seed", "PFAR, imitation start", ACC),
+            ("v2pure-seed", "PPO from scratch", "#e8a0a0"), ("pfarpure-seed", "PFAR from scratch", "#c5221f")]
+    fig, ax = plt.subplots(figsize=(W, 3.8))
+    for i, (sc, lab) in enumerate(REGIMES):
+        y = len(REGIMES) - 1 - i
+        for j, (pre, name, c) in enumerate(arms):
+            ds = [p["diff"] for p in t[sc]["runs"] if p["run"].startswith(pre)]
+            if not ds:
+                continue
+            yy = y + (1.5 - j) * 0.2
+            ax.barh(yy, sum(ds) / len(ds), height=0.18, color=c, label=f"{name} ({len(ds)} runs)" if i == 0 else None)
+            ax.scatter(ds, [yy] * len(ds), color=DARK, s=4, zorder=3)
+    ax.axvline(0, color=REF, lw=1)
+    ax.set_yticks(range(len(REGIMES)), [l for _, l in REGIMES][::-1])
+    ax.set_xlabel("lead over the best rule on fresh markets 700-799 ($M per company); bars: average, dots: runs")
+    ax.legend(loc="lower center", bbox_to_anchor=(0.45, 1.0), ncol=2, frameon=False, fontsize=7)
+    ax.grid(axis="y", visible=False)
+    fig.tight_layout()
+    save(fig, "fig_pfar")
+
+
 def fig_ablation():
     a = json.load(open(RES / "ablations.json"))["ablations"]
     full = a["full"]["diff"]
@@ -294,7 +317,7 @@ def fig_survival():
 
 
 if __name__ == "__main__":
-    for f in (fig_pure_rl, fig_training, fig_test, fig_controls, fig_ablation, fig_adoption, fig_calibration,
+    for f in (fig_pure_rl, fig_training, fig_test, fig_controls, fig_pfar, fig_ablation, fig_adoption, fig_calibration,
               fig_price, fig_survival):
         f()
     info = fig_one_game()

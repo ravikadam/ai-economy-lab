@@ -1,0 +1,4 @@
+demand:
+  confidence_diffusion: 0.15
+extends: ../scenarios/compute_crunch.yaml
+name: crunch_confidence_diffusion_0.15

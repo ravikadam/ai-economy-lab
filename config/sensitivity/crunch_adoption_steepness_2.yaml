@@ -1,0 +1,4 @@
+demand:
+  adoption_steepness: 2.0
+extends: ../scenarios/compute_crunch.yaml
+name: crunch_adoption_steepness_2

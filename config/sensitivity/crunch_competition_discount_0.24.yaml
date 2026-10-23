@@ -1,0 +1,4 @@
+demand:
+  competition_discount: 0.24
+extends: ../scenarios/compute_crunch.yaml
+name: crunch_competition_discount_0.24

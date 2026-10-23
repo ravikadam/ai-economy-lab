@@ -1,0 +1,725 @@
+{
+  "seeds": [
+    600,
+    629
+  ],
+  "market": {
+    "normal": {
+      "base": {
+        "final_adoption": [
+          132.8,
+          119.0,
+          73.9
+        ],
+        "regulated_vs_others": 0.5867090283293619,
+        "months_to_half_adoption": 26,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.30480401432140447,
+        "even_split_share": 0.31495159333804756,
+        "founders_value": 9.40910607635063,
+        "entrants_value": 4.443898587519868,
+        "founders_over_entrants": 2.117308910418191,
+        "price_peak": 5.37707662121734,
+        "price_end": 5.281306263432856,
+        "total_value_M": 787.3326968748058
+      },
+      "crunch": {
+        "final_adoption": [
+          101.8,
+          93.7,
+          39.0
+        ],
+        "regulated_vs_others": 0.3990450204638472,
+        "months_to_half_adoption": 18,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.25451739340090357,
+        "even_split_share": 0.26417271437514356,
+        "founders_value": 2.2540337210696126,
+        "entrants_value": -0.07760409125206465,
+        "founders_over_entrants": null,
+        "price_peak": 21.018939040777383,
+        "price_end": 17.59602462918174,
+        "total_value_M": 511.0897665793424
+      },
+      "crunch_price_peak_ratio": 3.9089900556445505,
+      "crunch_value_change": -0.3508592128740069
+    },
+    "adoption_steepness_2": {
+      "base": {
+        "final_adoption": [
+          137.0,
+          118.4,
+          71.9
+        ],
+        "regulated_vs_others": 0.563372927816212,
+        "months_to_half_adoption": 27,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.2958432722568146,
+        "even_split_share": 0.309370162001741,
+        "founders_value": 9.223423217927778,
+        "entrants_value": 4.293870046110041,
+        "founders_over_entrants": 2.1480443327071765,
+        "price_peak": 5.334402543696879,
+        "price_end": 5.217275167553904,
+        "total_value_M": 776.2213625806622
+      },
+      "crunch": {
+        "final_adoption": [
+          105.8,
+          88.8,
+          41.7
+        ],
+        "regulated_vs_others": 0.4286448518074354,
+        "months_to_half_adoption": 19,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.2559689649902426,
+        "even_split_share": 0.27077660180069824,
+        "founders_value": 2.5899448464569623,
+        "entrants_value": -0.03894565316001242,
+        "founders_over_entrants": null,
+        "price_peak": 21.36140477278533,
+        "price_end": 17.857678318609956,
+        "total_value_M": 505.65635538522616
+      },
+      "crunch_price_peak_ratio": 4.004460592878565,
+      "crunch_value_change": -0.34856681384792454
+    },
+    "adoption_steepness_8": {
+      "base": {
+        "final_adoption": [
+          137.1,
+          114.1,
+          74.3
+        ],
+        "regulated_vs_others": 0.5915605095541401,
+        "months_to_half_adoption": 26,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.3348499520810009,
+        "even_split_share": 0.31138556538947165,
+        "founders_value": 9.780299349189926,
+        "entrants_value": 3.964361943484538,
+        "founders_over_entrants": 2.4670550995637344,
+        "price_peak": 5.519553077214001,
+        "price_end": 4.912219571882775,
+        "total_value_M": 772.7490943738649
+      },
+      "crunch": {
+        "final_adoption": [
+          101.4,
+          90.9,
+          41.1
+        ],
+        "regulated_vs_others": 0.4271104177500433,
+        "months_to_half_adoption": 18,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.27557784896074006,
+        "even_split_share": 0.2482639588220282,
+        "founders_value": 2.396878738745266,
+        "entrants_value": -0.18026264203037154,
+        "founders_over_entrants": null,
+        "price_peak": 21.236125680293874,
+        "price_end": 18.81862484977927,
+        "total_value_M": 512.8031221815527
+      },
+      "crunch_price_peak_ratio": 3.8474357222800415,
+      "crunch_value_change": -0.3363911702839827
+    },
+    "competition_discount_0.06": {
+      "base": {
+        "final_adoption": [
+          126.1,
+          111.0,
+          67.3
+        ],
+        "regulated_vs_others": 0.5681338770918295,
+        "months_to_half_adoption": 24,
+        "new_adoption_peak_month": 15,
+        "first_mover_share": 0.2964626829250884,
+        "even_split_share": 0.2984888228532297,
+        "founders_value": 10.015637446133853,
+        "entrants_value": 4.6606862883569296,
+        "founders_over_entrants": 2.1489619396084154,
+        "price_peak": 5.815010777561468,
+        "price_end": 5.302168321742513,
+        "total_value_M": 752.7511007654784
+      },
+      "crunch": {
+        "final_adoption": [
+          107.9,
+          95.5,
+          42.5
+        ],
+        "regulated_vs_others": 0.41789577187807275,
+        "months_to_half_adoption": 19,
+        "new_adoption_peak_month": 15,
+        "first_mover_share": 0.23788379229106102,
+        "even_split_share": 0.2596755537231728,
+        "founders_value": 2.790674226706212,
+        "entrants_value": 0.26182607586077455,
+        "founders_over_entrants": 10.658503808421843,
+        "price_peak": 21.65909981367777,
+        "price_end": 17.2684436897693,
+        "total_value_M": 513.5049506034005
+      },
+      "crunch_price_peak_ratio": 3.7246878195401285,
+      "crunch_value_change": -0.3178290273090091
+    },
+    "competition_discount_0.24": {
+      "base": {
+        "final_adoption": [
+          137.2,
+          116.5,
+          74.2
+        ],
+        "regulated_vs_others": 0.5852056234397582,
+        "months_to_half_adoption": 27,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.31005870317237694,
+        "even_split_share": 0.31181640624999996,
+        "founders_value": 7.497707178349431,
+        "entrants_value": 3.118205077481781,
+        "founders_over_entrants": 2.404494570448354,
+        "price_peak": 5.337081498047411,
+        "price_end": 4.875225431242108,
+        "total_value_M": 777.7698391743653
+      },
+      "crunch": {
+        "final_adoption": [
+          106.0,
+          92.5,
+          39.5
+        ],
+        "regulated_vs_others": 0.3975155279503106,
+        "months_to_half_adoption": 18,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.27491812790192693,
+        "even_split_share": 0.26201167573311474,
+        "founders_value": 2.0150487851281587,
+        "entrants_value": 0.09052574093360968,
+        "founders_over_entrants": 22.259401186298682,
+        "price_peak": 19.355880219504627,
+        "price_end": 14.354341737513767,
+        "total_value_M": 511.08596448947225
+      },
+      "crunch_price_peak_ratio": 3.6266787806380774,
+      "crunch_value_change": -0.34288276717954114
+    },
+    "entry_base_prob_0.02": {
+      "base": {
+        "final_adoption": [
+          135.2,
+          118.1,
+          70.9
+        ],
+        "regulated_vs_others": 0.559400078936982,
+        "months_to_half_adoption": 27,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.3023612737026423,
+        "even_split_share": 0.31669229139467237,
+        "founders_value": 9.501818536930534,
+        "entrants_value": 4.296621413952592,
+        "founders_over_entrants": 2.2114628266001968,
+        "price_peak": 5.433964366928852,
+        "price_end": 5.174903099344152,
+        "total_value_M": 778.5203205970549
+      },
+      "crunch": {
+        "final_adoption": [
+          101.7,
+          89.4,
+          35.7
+        ],
+        "regulated_vs_others": 0.37369155617585487,
+        "months_to_half_adoption": 18,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.2633204658089864,
+        "even_split_share": 0.26790024628452574,
+        "founders_value": 2.6147549514632904,
+        "entrants_value": 0.12575711329333852,
+        "founders_over_entrants": 20.792103786321537,
+        "price_peak": 20.62414902166749,
+        "price_end": 15.513911794296524,
+        "total_value_M": 506.14860173400893
+      },
+      "crunch_price_peak_ratio": 3.7954148443052396,
+      "crunch_value_change": -0.34985820107323784
+    },
+    "entry_base_prob_0.08": {
+      "base": {
+        "final_adoption": [
+          132.7,
+          115.8,
+          76.7
+        ],
+        "regulated_vs_others": 0.6173038229376258,
+        "months_to_half_adoption": 26,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.2806119149719544,
+        "even_split_share": 0.3045504197363702,
+        "founders_value": 9.315488932996914,
+        "entrants_value": 4.009980778810067,
+        "founders_over_entrants": 2.3230757070514483,
+        "price_peak": 5.3249999999999975,
+        "price_end": 5.155486286199792,
+        "total_value_M": 777.07758753417
+      },
+      "crunch": {
+        "final_adoption": [
+          99.2,
+          94.1,
+          42.8
+        ],
+        "regulated_vs_others": 0.44325629527423255,
+        "months_to_half_adoption": 18,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.24700851981101365,
+        "even_split_share": 0.2556584198368284,
+        "founders_value": 2.171647864746974,
+        "entrants_value": -0.10870334299304199,
+        "founders_over_entrants": null,
+        "price_peak": 21.05928017613865,
+        "price_end": 16.699883387533305,
+        "total_value_M": 517.9129132807383
+      },
+      "crunch_price_peak_ratio": 3.9547943992748658,
+      "crunch_value_change": -0.33351196638654257
+    },
+    "price_ceiling_0.015": {
+      "base": {
+        "final_adoption": [
+          132.8,
+          119.0,
+          73.9
+        ],
+        "regulated_vs_others": 0.5867090283293619,
+        "months_to_half_adoption": 26,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.30480401432140447,
+        "even_split_share": 0.31495159333804756,
+        "founders_value": 9.40910607635063,
+        "entrants_value": 4.443898587519868,
+        "founders_over_entrants": 2.117308910418191,
+        "price_peak": 5.37707662121734,
+        "price_end": 5.281306263432856,
+        "total_value_M": 787.3326968748058
+      },
+      "crunch": {
+        "final_adoption": [
+          118.0,
+          104.1,
+          54.5
+        ],
+        "regulated_vs_others": 0.4909172796877346,
+        "months_to_half_adoption": 21,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.3058369367082188,
+        "even_split_share": 0.28044276108185884,
+        "founders_value": 3.2223706171111286,
+        "entrants_value": 0.5497140018658175,
+        "founders_over_entrants": 5.861903837584427,
+        "price_peak": 14.107841855074735,
+        "price_end": 13.088163638340092,
+        "total_value_M": 595.7011376245393
+      },
+      "crunch_price_peak_ratio": 2.623701101711435,
+      "crunch_value_change": -0.24339337107542725
+    },
+    "price_ceiling_0.06": {
+      "base": {
+        "final_adoption": [
+          132.8,
+          119.0,
+          73.9
+        ],
+        "regulated_vs_others": 0.5867090283293619,
+        "months_to_half_adoption": 26,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.30480401432140447,
+        "even_split_share": 0.31495159333804756,
+        "founders_value": 9.40910607635063,
+        "entrants_value": 4.443898587519868,
+        "founders_over_entrants": 2.117308910418191,
+        "price_peak": 5.37707662121734,
+        "price_end": 5.281306263432856,
+        "total_value_M": 787.3326968748058
+      },
+      "crunch": {
+        "final_adoption": [
+          98.6,
+          90.5,
+          35.9
+        ],
+        "regulated_vs_others": 0.37920704845814973,
+        "months_to_half_adoption": 18,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.24742712142903223,
+        "even_split_share": 0.2583035404312,
+        "founders_value": 2.1844160506074197,
+        "entrants_value": -0.01032564576480681,
+        "founders_over_entrants": null,
+        "price_peak": 22.375098378701736,
+        "price_end": 17.16928497848195,
+        "total_value_M": 497.75612209445325
+      },
+      "crunch_price_peak_ratio": 4.1612013283225515,
+      "crunch_value_change": -0.3677944227767773
+    },
+    "confidence_diffusion_0.15": {
+      "base": {
+        "final_adoption": [
+          132.3,
+          113.9,
+          70.6
+        ],
+        "regulated_vs_others": 0.5734398267226207,
+        "months_to_half_adoption": 25,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.3104106804268951,
+        "even_split_share": 0.3140185290583697,
+        "founders_value": 9.4835637947881,
+        "entrants_value": 4.001730359387406,
+        "founders_over_entrants": 2.3698657688270295,
+        "price_peak": 5.3440371377866125,
+        "price_end": 5.08948558006395,
+        "total_value_M": 767.3688734966161
+      },
+      "crunch": {
+        "final_adoption": [
+          106.4,
+          91.3,
+          42.4
+        ],
+        "regulated_vs_others": 0.4289327263530602,
+        "months_to_half_adoption": 19,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.229284380513413,
+        "even_split_share": 0.2624219487994998,
+        "founders_value": 2.5940312981350995,
+        "entrants_value": -0.08204471188661686,
+        "founders_over_entrants": null,
+        "price_peak": 21.5695851286013,
+        "price_end": 16.6767427930103,
+        "total_value_M": 506.8826483976246
+      },
+      "crunch_price_peak_ratio": 4.036196712797353,
+      "crunch_value_change": -0.3394537283119813
+    },
+    "confidence_diffusion_0.6": {
+      "base": {
+        "final_adoption": [
+          136.7,
+          115.4,
+          74.0
+        ],
+        "regulated_vs_others": 0.5868041782361497,
+        "months_to_half_adoption": 26,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.2986776757814721,
+        "even_split_share": 0.30899244198424525,
+        "founders_value": 9.312736068927125,
+        "entrants_value": 4.378883011555716,
+        "founders_over_entrants": 2.126737810613151,
+        "price_peak": 5.3411166661285545,
+        "price_end": 5.215825608213683,
+        "total_value_M": 785.2344993876646
+      },
+      "crunch": {
+        "final_adoption": [
+          100.4,
+          93.3,
+          43.3
+        ],
+        "regulated_vs_others": 0.44727335282986413,
+        "months_to_half_adoption": 18,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.24349971686990377,
+        "even_split_share": 0.26431658619158616,
+        "founders_value": 2.487816360102062,
+        "entrants_value": 0.06432283740253397,
+        "founders_over_entrants": 38.67703074933158,
+        "price_peak": 20.842286703309604,
+        "price_end": 16.592246287097545,
+        "total_value_M": 504.4876799424855
+      },
+      "crunch_price_peak_ratio": 3.9022339346159405,
+      "crunch_value_change": -0.35753245643703746
+    },
+    "fab_lead_time_12": {
+      "base": {
+        "final_adoption": [
+          132.8,
+          119.0,
+          73.9
+        ],
+        "regulated_vs_others": 0.5867090283293619,
+        "months_to_half_adoption": 26,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.30480401432140447,
+        "even_split_share": 0.31495159333804756,
+        "founders_value": 9.40910607635063,
+        "entrants_value": 4.443898587519868,
+        "founders_over_entrants": 2.117308910418191,
+        "price_peak": 5.37707662121734,
+        "price_end": 5.281306263432856,
+        "total_value_M": 787.3326968748058
+      },
+      "crunch": {
+        "final_adoption": [
+          101.8,
+          93.7,
+          39.0
+        ],
+        "regulated_vs_others": 0.3990450204638472,
+        "months_to_half_adoption": 18,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.25451739340090357,
+        "even_split_share": 0.26417271437514356,
+        "founders_value": 2.2540337210696126,
+        "entrants_value": -0.07760409125206465,
+        "founders_over_entrants": null,
+        "price_peak": 21.018939040777383,
+        "price_end": 17.59602462918174,
+        "total_value_M": 511.0897665793424
+      },
+      "crunch_price_peak_ratio": 3.9089900556445505,
+      "crunch_value_change": -0.3508592128740069
+    },
+    "fab_lead_time_24": {
+      "base": {
+        "final_adoption": [
+          132.8,
+          119.0,
+          73.9
+        ],
+        "regulated_vs_others": 0.5867090283293619,
+        "months_to_half_adoption": 26,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.30480401432140447,
+        "even_split_share": 0.31495159333804756,
+        "founders_value": 9.40910607635063,
+        "entrants_value": 4.443898587519868,
+        "founders_over_entrants": 2.117308910418191,
+        "price_peak": 5.37707662121734,
+        "price_end": 5.281306263432856,
+        "total_value_M": 787.3326968748058
+      },
+      "crunch": {
+        "final_adoption": [
+          101.8,
+          93.7,
+          39.0
+        ],
+        "regulated_vs_others": 0.3990450204638472,
+        "months_to_half_adoption": 18,
+        "new_adoption_peak_month": 14,
+        "first_mover_share": 0.25451739340090357,
+        "even_split_share": 0.26417271437514356,
+        "founders_value": 2.2540337210696126,
+        "entrants_value": -0.07760409125206465,
+        "founders_over_entrants": null,
+        "price_peak": 21.018939040777383,
+        "price_end": 17.59602462918174,
+        "total_value_M": 511.0897665793424
+      },
+      "crunch_price_peak_ratio": 3.9089900556445505,
+      "crunch_value_change": -0.3508592128740069
+    }
+  },
+  "holm": {
+    "per_agent": {
+      "base|v2-seed4": {
+        "p": 1.6479262399116124e-11,
+        "holm_threshold": 0.0016666666666666668,
+        "clear_after_holm": true
+      },
+      "base|v2-seed2": {
+        "p": 6.197367063975889e-10,
+        "holm_threshold": 0.001724137931034483,
+        "clear_after_holm": true
+      },
+      "fast_tech|v2-seed4": {
+        "p": 3.029897444051244e-09,
+        "holm_threshold": 0.0017857142857142859,
+        "clear_after_holm": true
+      },
+      "fast_tech|v2-seed2": {
+        "p": 4.4116548192363325e-09,
+        "holm_threshold": 0.001851851851851852,
+        "clear_after_holm": true
+      },
+      "fast_tech|v2-seed1": {
+        "p": 1.0077875867153807e-08,
+        "holm_threshold": 0.0019230769230769232,
+        "clear_after_holm": true
+      },
+      "slow_tech|v2-seed1": {
+        "p": 4.042543366722384e-07,
+        "holm_threshold": 0.002,
+        "clear_after_holm": true
+      },
+      "base|v2-seed1": {
+        "p": 4.159337767539739e-07,
+        "holm_threshold": 0.0020833333333333333,
+        "clear_after_holm": true
+      },
+      "slow_tech|v2-seed2": {
+        "p": 8.745959700018346e-06,
+        "holm_threshold": 0.002173913043478261,
+        "clear_after_holm": true
+      },
+      "slow_tech|v2-seed4": {
+        "p": 0.00011426230540534377,
+        "holm_threshold": 0.002272727272727273,
+        "clear_after_holm": true
+      },
+      "base|v2-seed0": {
+        "p": 0.00012463719248367866,
+        "holm_threshold": 0.002380952380952381,
+        "clear_after_holm": true
+      },
+      "entrant_wave|v2-seed1": {
+        "p": 0.00026751964043536525,
+        "holm_threshold": 0.0025,
+        "clear_after_holm": true
+      },
+      "entrant_wave|v2-seed2": {
+        "p": 0.00034995774636481514,
+        "holm_threshold": 0.002631578947368421,
+        "clear_after_holm": true
+      },
+      "entrant_wave|v2-seed4": {
+        "p": 0.0003912512773200927,
+        "holm_threshold": 0.002777777777777778,
+        "clear_after_holm": true
+      },
+      "fast_tech|v2-seed0": {
+        "p": 0.0004873551316049163,
+        "holm_threshold": 0.0029411764705882353,
+        "clear_after_holm": true
+      },
+      "slow_tech|v2-seed0": {
+        "p": 0.0009388646911154819,
+        "holm_threshold": 0.003125,
+        "clear_after_holm": true
+      },
+      "harsh_failures|v2-seed4": {
+        "p": 0.009074445524232866,
+        "holm_threshold": 0.0033333333333333335,
+        "clear_after_holm": false
+      },
+      "fast_tech|v2-seed3": {
+        "p": 0.012960831893802593,
+        "holm_threshold": 0.0035714285714285718,
+        "clear_after_holm": false
+      },
+      "harsh_failures|v2-seed2": {
+        "p": 0.02974251111878745,
+        "holm_threshold": 0.0038461538461538464,
+        "clear_after_holm": false
+      },
+      "base|v2-seed3": {
+        "p": 0.053602762692471995,
+        "holm_threshold": 0.004166666666666667,
+        "clear_after_holm": false
+      },
+      "harsh_failures|v2-seed1": {
+        "p": 0.06204462402540356,
+        "holm_threshold": 0.004545454545454546,
+        "clear_after_holm": false
+      },
+      "entrant_wave|v2-seed0": {
+        "p": 0.06472512485541082,
+        "holm_threshold": 0.005,
+        "clear_after_holm": false
+      },
+      "slow_tech|v2-seed3": {
+        "p": 0.12636070316322612,
+        "holm_threshold": 0.005555555555555556,
+        "clear_after_holm": false
+      },
+      "harsh_failures|v2-seed3": {
+        "p": 0.2783171747235924,
+        "holm_threshold": 0.00625,
+        "clear_after_holm": false
+      },
+      "harsh_failures|v2-seed0": {
+        "p": 0.3995527630600306,
+        "holm_threshold": 0.0071428571428571435,
+        "clear_after_holm": false
+      },
+      "entrant_wave|v2-seed3": {
+        "p": 0.40418535084243357,
+        "holm_threshold": 0.008333333333333333,
+        "clear_after_holm": false
+      },
+      "compute_crunch|v2-seed1": {
+        "p": 0.5924566902556001,
+        "holm_threshold": 0.01,
+        "clear_after_holm": false
+      },
+      "compute_crunch|v2-seed2": {
+        "p": 0.618027032596765,
+        "holm_threshold": 0.0125,
+        "clear_after_holm": false
+      },
+      "compute_crunch|v2-seed0": {
+        "p": 0.6836903392658948,
+        "holm_threshold": 0.016666666666666666,
+        "clear_after_holm": false
+      },
+      "compute_crunch|v2-seed3": {
+        "p": 0.8353134147875492,
+        "holm_threshold": 0.025,
+        "clear_after_holm": false
+      },
+      "compute_crunch|v2-seed4": {
+        "p": 0.9663916390204335,
+        "holm_threshold": 0.05,
+        "clear_after_holm": false
+      }
+    },
+    "pooled": {
+      "base": {
+        "p": 5e-05,
+        "holm_threshold": 0.008333333333333333,
+        "clear_after_holm": true
+      },
+      "fast_tech": {
+        "p": 5e-05,
+        "holm_threshold": 0.01,
+        "clear_after_holm": true
+      },
+      "slow_tech": {
+        "p": 5e-05,
+        "holm_threshold": 0.0125,
+        "clear_after_holm": true
+      },
+      "entrant_wave": {
+        "p": 0.00615,
+        "holm_threshold": 0.016666666666666666,
+        "clear_after_holm": true
+      },
+      "harsh_failures": {
+        "p": 0.06195,
+        "holm_threshold": 0.025,
+        "clear_after_holm": false
+      },
+      "compute_crunch": {
+        "p": 0.97845,
+        "holm_threshold": 0.05,
+        "clear_after_holm": false
+      }
+    },
+    "primary_endpoint_unadjusted_clear": 4,
+    "per_agent_clear_unadjusted": 18,
+    "per_agent_clear_after_holm": 15,
+    "per_agent_clear_after_holm_by_condition": {
+      "base": 4,
+      "compute_crunch": 0,
+      "entrant_wave": 3,
+      "fast_tech": 4,
+      "slow_tech": 4,
+      "harsh_failures": 0
+    }
+  }
+}

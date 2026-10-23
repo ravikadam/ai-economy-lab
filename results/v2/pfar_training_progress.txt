@@ -1,0 +1,21 @@
+=== pfar seed 0 start 16:10
+=== pfar seed 0 done 20:40 exit 0
+=== pfar seed 1 start 20:40
+=== pfar seed 1 done 21:45 exit 0
+=== pfar seed 2 start 21:45
+=== pfar seed 2 done 23:34 exit 0
+=== pfar seed 3 start 23:34
+=== pfar seed 3 done 00:26 exit 0
+=== pfar seed 4 start 00:26
+=== pfar seed 4 done 02:47 exit 0
+=== pfarpure seed 0 start 02:47
+=== pfarpure seed 0 done 06:03 exit 0
+=== pfarpure seed 1 start 06:03
+=== pfarpure seed 1 done 07:49 exit 0
+=== pfarpure seed 2 start 07:49
+=== pfarpure seed 2 done 09:55 exit 0
+=== pfarpure seed 3 start 09:55
+=== pfarpure seed 3 done 10:21 exit 0
+=== pfarpure seed 4 start 10:21
+=== pfarpure seed 4 done 12:11 exit 0
+PFAR_DONE

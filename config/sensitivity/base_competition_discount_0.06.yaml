@@ -1,0 +1,4 @@
+demand:
+  competition_discount: 0.06
+extends: ../base.yaml
+name: base_competition_discount_0.06

@@ -1,0 +1,4 @@
+extends: ../base.yaml
+fab:
+  capex_lead_time: 24
+name: base_fab_lead_time_24

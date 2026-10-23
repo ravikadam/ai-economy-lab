@@ -1,0 +1,4 @@
+builders:
+  entry_base_prob: 0.08
+extends: ../scenarios/compute_crunch.yaml
+name: crunch_entry_base_prob_0.08

@@ -1,0 +1,4 @@
+demand:
+  adoption_steepness: 8.0
+extends: ../base.yaml
+name: base_adoption_steepness_8
